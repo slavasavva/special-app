@@ -9,5 +9,10 @@ public class SearchEngineApplication {
     @SneakyThrows
     public static void main(String[] args) {
         SpringApplication.run(SearchEngineApplication.class, args);
+
     }
+//    public static String removeHttp(String url) {
+//        String regex = "/^https?:\\/\\//";
+//        return url.replace(regex, "");
+//    }
 }
