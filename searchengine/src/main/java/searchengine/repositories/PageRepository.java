@@ -13,6 +13,9 @@ import java.util.List;
 
 @Repository
 public interface PageRepository extends JpaRepository<Page, Long> {
+    @Query(value = "select * from page where site_id = :siteId and path = :path", nativeQuery = true)
+    List<Site> findBySiteIdAndPath(Long siteId, String path);
+
     @Modifying
     @Query(value = "delete from page where site_id = :siteId", nativeQuery = true)
     @Transactional

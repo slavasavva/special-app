@@ -4,13 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
 import searchengine.dto.StartIndexingResponse;
-import searchengine.model.Page;
 import searchengine.model.Site;
 import searchengine.model.StatusType;
 import searchengine.repositories.PageRepository;
 import searchengine.repositories.SiteRepository;
 
 import java.util.List;
+import java.util.concurrent.ForkJoinPool;
 
 @Service
 @RequiredArgsConstructor
@@ -24,24 +24,25 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public StartIndexingResponse startIndexing() {
-        addAll();
+        configSites.getSites().forEach(configSite -> {
+            String url = configSite.getUrl();
+            Long oldSiteId = getSiteIdByUrl(url);
+            deleteSiteByUrl(url);
+            if (oldSiteId != null) {
+                deletePageBySiteId(oldSiteId);
+            }
+            Long siteId = addSite(configSite);
+            new ForkJoinPool().invoke(new WebSearchTask(url, siteId, url, siteRepository, pageRepository));
+        });
+
         StartIndexingResponse startIndexingResponse = new StartIndexingResponse();
         startIndexingResponse.setResult(true);
         return startIndexingResponse;
     }
 
-    public void addAll() {
-        configSites.getSites().forEach(configSite -> {
-            Long oldSiteId = getSiteIdByUrl(configSite.getUrl());
-            deleteSiteByUrl(configSite.getUrl());
-            deletePageBySiteId(oldSiteId);
-            Long siteId = addSite(configSite);
-            addPage(siteId, "savva", 200, "kamu");
-        });
-    }
-
     private Long getSiteIdByUrl(String url) {
-        return siteRepository.findByUrl(url).get(0).getId();
+        List<Site> sites = siteRepository.findByUrl(url);
+        return sites.size() > 0 ? sites.get(0).getId() : null;
     }
 
     private void deleteSiteByUrl(String url) {
@@ -58,14 +59,5 @@ public class IndexServiceImpl implements IndexService {
         site.setUrl(configSite.getUrl());
         site.setName(configSite.getName());
         return siteRepository.save(site).getId();
-    }
-
-    private void addPage(Long siteId, String path, int code, String content) {
-        Page page = new Page();
-        page.setSiteId(siteId);
-        page.setPath(path);
-        page.setCode(code);
-        page.setContent(content);
-        pageRepository.save(page);
     }
 }
