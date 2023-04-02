@@ -18,13 +18,13 @@ public class Page {
     Long id;
 
     @Column(name = "site_id", nullable = false)
-    private String siteId;
+    private Long siteId;
 
     @Column(nullable = false)
     private String path;
 
     @Column(nullable = false)
-    private String code;
+    private int code;
 
     @Column(nullable = false)
     private String content;
