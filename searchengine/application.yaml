@@ -11,8 +11,12 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
       ddl-auto: update
-    show-sql: false # ?????? ??? ???????
+    show-sql: true
 indexing-settings:
   sites:
-    - url: https://www.lenta.ru/
+    - url: https://www.lenta.ru
       name: Лента.ру
+    - url: https://www.skillbox.ru
+      name: Skillbox
+    - url: https://www.playback.ru
+      name: PlayBack.Ru

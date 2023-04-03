@@ -1,9 +1,7 @@
 package searchengine.model;
-
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import javax.persistence.*;
 
 @Entity(name = "site")
@@ -12,7 +10,6 @@ import javax.persistence.*;
 @Setter
 @Table(name = "site")
 public class Site {
-
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     Long id;

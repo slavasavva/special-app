@@ -3,7 +3,9 @@ package searchengine.services;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import searchengine.config.SitesList;
+import searchengine.dto.IndexPageResponse;
 import searchengine.dto.StartIndexingResponse;
+import searchengine.dto.StopIndexingResponse;
 import searchengine.model.Site;
 import searchengine.model.StatusType;
 import searchengine.repositories.PageRepository;
@@ -59,5 +61,19 @@ public class IndexServiceImpl implements IndexService {
         site.setUrl(configSite.getUrl());
         site.setName(configSite.getName());
         return siteRepository.save(site).getId();
+    }
+
+    @Override
+    public StopIndexingResponse stopIndexing() {
+        StopIndexingResponse stopIndexingResponse = new StopIndexingResponse();
+        stopIndexingResponse.setResult(true);
+        return stopIndexingResponse;
+    }
+
+    @Override
+    public IndexPageResponse pageIndexing() {
+        IndexPageResponse indexPageResponse = new IndexPageResponse();
+        indexPageResponse.setResult(true);
+        return indexPageResponse;
     }
 }
