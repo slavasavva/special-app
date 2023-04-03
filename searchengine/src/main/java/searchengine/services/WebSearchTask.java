@@ -23,7 +23,7 @@ public class WebSearchTask extends RecursiveAction {
 
     private SiteRepository siteRepository;
 
-    private PageRepository pageRepository;
+    private final PageRepository pageRepository;
 
     private List<WebSearchTask> subTasks = new LinkedList<>();
 
@@ -77,6 +77,15 @@ public class WebSearchTask extends RecursiveAction {
         }
     }
 
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", WebSearchTask.class.getSimpleName() + "[", "]")
+                .add("startUrl='" + startUrl + "'")
+                .add("url='" + url + "'")
+                .add("siteId=" + siteId)
+                .toString();
+    }
+
     private boolean wrongLink(Long siteId, String link) {
         int sitePaths = pageRepository.findBySiteIdAndPath(siteId, link).size();
         boolean wrongLink = sitePaths > 0
@@ -88,16 +97,15 @@ public class WebSearchTask extends RecursiveAction {
         return wrongLink;
     }
 
-    @Override
-    public String toString() {
-        return new StringJoiner(", ", WebSearchTask.class.getSimpleName() + "[", "]")
-                .add("startUrl='" + startUrl + "'")
-                .add("url='" + url + "'")
-                .add("siteId=" + siteId)
-                .toString();
+    private void addPage(Long siteId, String path, int code, String content) {
+        synchronized (pageRepository) {
+            if (!wrongLink(siteId, path)) {
+                createPage(siteId, path, code, content);
+            }
+        }
     }
 
-    private void addPage(Long siteId, String path, int code, String content) {
+    private void createPage(Long siteId, String path, int code, String content) {
         Page page = new Page();
         page.setSiteId(siteId);
         page.setPath(path);
