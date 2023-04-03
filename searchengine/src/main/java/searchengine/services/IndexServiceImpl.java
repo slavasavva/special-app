@@ -2,7 +2,7 @@ package searchengine.services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import searchengine.config.SitesList;
+import searchengine.config.IndexingSettings;
 import searchengine.dto.IndexPageResponse;
 import searchengine.dto.StartIndexingResponse;
 import searchengine.dto.StopIndexingResponse;
@@ -17,8 +17,7 @@ import java.util.concurrent.ForkJoinPool;
 @Service
 @RequiredArgsConstructor
 public class IndexServiceImpl implements IndexService {
-
-    private final SitesList configSites;
+    private final IndexingSettings indexingSettings;
 
     private final SiteRepository siteRepository;
 
@@ -26,7 +25,7 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public StartIndexingResponse startIndexing() {
-        configSites.getSites().forEach(configSite -> {
+        indexingSettings.getSites().forEach(configSite -> {
             String url = configSite.getUrl();
             Long oldSiteId = getSiteIdByUrl(url);
             deleteSiteByUrl(url);
