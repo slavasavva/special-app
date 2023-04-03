@@ -11,7 +11,11 @@ import searchengine.model.StatusType;
 import searchengine.repositories.PageRepository;
 import searchengine.repositories.SiteRepository;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 
 @Service
@@ -25,21 +29,30 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public StartIndexingResponse startIndexing() {
-        indexingSettings.getSites().forEach(configSite -> {
-            String url = configSite.getUrl();
-            Long oldSiteId = getSiteIdByUrl(url);
-            deleteSiteByUrl(url);
-            if (oldSiteId != null) {
-                deletePageBySiteId(oldSiteId);
-            }
-            Long siteId = addSite(configSite);
-            new ForkJoinPool().invoke(new WebSearchTask(url, siteId, url, siteRepository, pageRepository));
-        });
-
+        int configSitesSize = indexingSettings.getSites().size();
+        List<Callable<Object>> indexingTasks = new ArrayList<>(configSitesSize);
+        indexingSettings.getSites().forEach(configSite -> indexingTasks.add(Executors.callable(() -> indexSite(configSite))));
+        ExecutorService executorService = Executors.newFixedThreadPool(configSitesSize);
+        try {
+            executorService.invokeAll(indexingTasks);
+        } catch (InterruptedException e) {
+            System.err.println("InterruptedException: " + e.getMessage());
+        }
         System.out.println("done");
         StartIndexingResponse startIndexingResponse = new StartIndexingResponse();
         startIndexingResponse.setResult(true);
         return startIndexingResponse;
+    }
+
+    private void indexSite(searchengine.config.Site configSite) {
+        String url = configSite.getUrl();
+        Long oldSiteId = getSiteIdByUrl(url);
+        deleteSiteByUrl(url);
+        if (oldSiteId != null) {
+            deletePageBySiteId(oldSiteId);
+        }
+        Long siteId = addSite(configSite);
+        new ForkJoinPool().invoke(new WebSearchTask(url, siteId, url, siteRepository, pageRepository));
     }
 
     private Long getSiteIdByUrl(String url) {
