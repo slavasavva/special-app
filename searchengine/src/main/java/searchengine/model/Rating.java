@@ -4,12 +4,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import javax.persistence.*;
 
-@Entity(name = "search_index")
+@Entity(name = "rating")
 @NoArgsConstructor
 @Getter
 @Setter
-@Table(name = "search_index")
-public class SearchIndex {
+@Table(name = "rating")
+public class Rating {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     Long id;
@@ -20,7 +20,6 @@ public class SearchIndex {
     @Column(name = "lemma_id", nullable = false)
     private Long lemmaId;
 
-
     @Column(nullable = false)
-    private Float rank;
+    private Float rating;
 }
