@@ -11,6 +11,7 @@ import searchengine.repositories.SiteRepository;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.RecursiveAction;
 
 public class WebSearchTask extends RecursiveAction {
@@ -26,7 +27,7 @@ public class WebSearchTask extends RecursiveAction {
 
     private List<WebSearchTask> subTasks = new LinkedList<>();
 
-    LocalDate localDate = LocalDate.now();
+    private LocalDate localDate = LocalDate.now();
 
     public WebSearchTask(String startUrl, Long siteId, String url,
                          SiteRepository siteRepository, PageRepository pageRepository) {
@@ -39,30 +40,33 @@ public class WebSearchTask extends RecursiveAction {
 
     @Override
     protected void compute() {
-//        if (pageRepository.findBySiteIdAndPath(siteId, url).size() > 100) {
-//            return;
-//        }
-//        if (wrongLink(siteId, url)) {
-//            return;
-//        }
+        int allPaths = pageRepository.findAll().size();
+        if (allPaths > 100) {
+            return;
+        }
+        if (wrongLink(siteId, url)) {
+            return;
+        }
         System.out.println("processing url = " + url);
         try {
             Thread.sleep(500);
-//            Document document = Jsoup.connect(url).get();
             Document document = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com")
                     .get();
-            addPage(siteId, url, 200, document.html()); // TODO document.?
+//            addPage(siteId, url, 200, document.html());
+            addPage(siteId, url, 200, document.title());
             Elements linkElements = document.select("a[href]");
             for (Element linkElement : linkElements) {
                 String link = linkElement.attr("abs:href");
-//                if (!wrongLink(siteId, link)) {
-                WebSearchTask webSearchTask = new WebSearchTask(startUrl, siteId, link,
-                        siteRepository, pageRepository);
-                webSearchTask.fork();
-                subTasks.add(webSearchTask);
-//                }
+                if (!wrongLink(siteId, link)) {
+                    WebSearchTask webSearchTask = new WebSearchTask(startUrl, siteId, link,
+                            siteRepository, pageRepository);
+                    webSearchTask.fork();
+                    if (subTasks.size() < 10) {
+                        subTasks.add(webSearchTask);
+                    }
+                }
             }
             for (WebSearchTask webSearchTask : subTasks) {
                 webSearchTask.join();
@@ -74,13 +78,23 @@ public class WebSearchTask extends RecursiveAction {
     }
 
     private boolean wrongLink(Long siteId, String link) {
-        return pageRepository.findBySiteIdAndPath(siteId, link).size() > 0
+        int sitePaths = pageRepository.findBySiteIdAndPath(siteId, link).size();
+        boolean wrongLink = sitePaths > 0
                 || !link.startsWith(startUrl)
                 || link.contains("#")
-                || link.endsWith("pdf")
-                || link.endsWith("xls")
                 || link.endsWith("doc")
-                ;
+                || link.endsWith("pdf")
+                || link.endsWith("xls");
+        return wrongLink;
+    }
+
+    @Override
+    public String toString() {
+        return new StringJoiner(", ", WebSearchTask.class.getSimpleName() + "[", "]")
+                .add("startUrl='" + startUrl + "'")
+                .add("url='" + url + "'")
+                .add("siteId=" + siteId)
+                .toString();
     }
 
     private void addPage(Long siteId, String path, int code, String content) {

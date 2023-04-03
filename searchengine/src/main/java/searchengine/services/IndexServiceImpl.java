@@ -37,6 +37,7 @@ public class IndexServiceImpl implements IndexService {
             new ForkJoinPool().invoke(new WebSearchTask(url, siteId, url, siteRepository, pageRepository));
         });
 
+        System.out.println("done");
         StartIndexingResponse startIndexingResponse = new StartIndexingResponse();
         startIndexingResponse.setResult(true);
         return startIndexingResponse;
