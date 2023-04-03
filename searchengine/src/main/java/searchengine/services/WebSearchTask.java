@@ -47,15 +47,14 @@ public class WebSearchTask extends RecursiveAction {
         if (wrongLink(siteId, url)) {
             return;
         }
-        System.out.println("processing url = " + url);
+        System.out.println("(" + allPaths + ") processing URL " + url);
         try {
             Thread.sleep(500);
             Document document = Jsoup.connect(url)
                     .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
                     .referrer("http://www.google.com")
                     .get();
-//            addPage(siteId, url, 200, document.html());
-            addPage(siteId, url, 200, document.title());
+            addPage(siteId, url, 200, document.html());
             Elements linkElements = document.select("a[href]");
             for (Element linkElement : linkElements) {
                 String link = linkElement.attr("abs:href");
@@ -72,7 +71,7 @@ public class WebSearchTask extends RecursiveAction {
                 webSearchTask.join();
             }
         } catch (Exception e) {
-            addPage(siteId, url, 500, ""); // TODO code?
+            addPage(siteId, url, 500, e.getMessage());
             System.err.println("Exception for '" + url + "': " + e.getMessage());
         }
     }
@@ -92,7 +91,10 @@ public class WebSearchTask extends RecursiveAction {
                 || !link.startsWith(startUrl)
                 || link.contains("#")
                 || link.endsWith("doc")
+                || link.endsWith("gif")
+                || link.endsWith("jpg")
                 || link.endsWith("pdf")
+                || link.endsWith("png")
                 || link.endsWith("xls");
         return wrongLink;
     }
@@ -100,7 +102,11 @@ public class WebSearchTask extends RecursiveAction {
     private void addPage(Long siteId, String path, int code, String content) {
         synchronized (pageRepository) {
             if (!wrongLink(siteId, path)) {
-                createPage(siteId, path, code, content);
+                try {
+                    createPage(siteId, path, code, content);
+                } catch (Exception e) {
+                    System.err.println(e);
+                }
             }
         }
     }

@@ -26,6 +26,6 @@ public class Page {
     @Column(nullable = false)
     private int code;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "MEDIUMTEXT", nullable = false)
     private String content;
 }
