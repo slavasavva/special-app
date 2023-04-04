@@ -31,7 +31,8 @@ public class IndexServiceImpl implements IndexService {
     public StartIndexingResponse startIndexing() {
         int configSitesSize = indexingSettings.getSites().size();
         List<Callable<Object>> indexingTasks = new ArrayList<>(configSitesSize);
-        indexingSettings.getSites().forEach(configSite -> indexingTasks.add(Executors.callable(() -> indexSite(configSite))));
+        indexingSettings.getSites().forEach(configSite -> indexingTasks.add(Executors.callable(()
+                -> indexSite(configSite))));
         ExecutorService executorService = Executors.newFixedThreadPool(configSitesSize);
         try {
             executorService.invokeAll(indexingTasks);
@@ -53,6 +54,8 @@ public class IndexServiceImpl implements IndexService {
         }
         Long siteId = addSite(configSite);
         new ForkJoinPool().invoke(new WebSearchTask(url, siteId, url, siteRepository, pageRepository));
+
+       siteRepository.setType(url, StatusType.INDEXED);
     }
 
     private Long getSiteIdByUrl(String url) {
