@@ -26,9 +26,11 @@ public class IndexServiceImpl implements IndexService {
     private final SiteRepository siteRepository;
 
     private final PageRepository pageRepository;
-
+    public boolean stop = false;
     @Override
     public StartIndexingResponse startIndexing() {
+        stop = false;
+        pageRepository.deleteAll();
         int configSitesSize = indexingSettings.getSites().size();
         List<Callable<Object>> indexingTasks = new ArrayList<>(configSitesSize);
         indexingSettings.getSites().forEach(configSite -> indexingTasks.add(Executors.callable(()
@@ -54,8 +56,7 @@ public class IndexServiceImpl implements IndexService {
         }
         Long siteId = addSite(configSite);
         new ForkJoinPool().invoke(new WebSearchTask(url, siteId, url, siteRepository, pageRepository));
-
-       siteRepository.setType(url, StatusType.INDEXED);
+//       siteRepository.setType(url, StatusType.INDEXED);
     }
 
     private Long getSiteIdByUrl(String url) {
@@ -81,6 +82,7 @@ public class IndexServiceImpl implements IndexService {
 
     @Override
     public StopIndexingResponse stopIndexing() {
+        stop = true;
         StopIndexingResponse stopIndexingResponse = new StopIndexingResponse();
         stopIndexingResponse.setResult(true);
         return stopIndexingResponse;

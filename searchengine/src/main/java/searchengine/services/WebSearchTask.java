@@ -5,6 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import searchengine.model.Page;
+import searchengine.model.StatusType;
 import searchengine.repositories.PageRepository;
 import searchengine.repositories.SiteRepository;
 
@@ -15,6 +16,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.RecursiveAction;
 
 public class WebSearchTask extends RecursiveAction {
+    private IndexServiceImpl indexService;
     private String startUrl;
 
     private String url;
@@ -47,6 +49,10 @@ public class WebSearchTask extends RecursiveAction {
         if (wrongLink(siteId, url)) {
             return;
         }
+//        if (indexService.stop) {
+//            System.out.println("СТООООП!");
+//            return;
+//        }
         System.out.println("(" + allPaths + ") processing URL " + url);
         try {
             Thread.sleep(500);
@@ -62,9 +68,9 @@ public class WebSearchTask extends RecursiveAction {
                     WebSearchTask webSearchTask = new WebSearchTask(startUrl, siteId, link,
                             siteRepository, pageRepository);
                     webSearchTask.fork();
-                    if (subTasks.size() < 10) {
+                   if (subTasks.size() < 10) {
                         subTasks.add(webSearchTask);
-                    }
+                   }
                 }
             }
             for (WebSearchTask webSearchTask : subTasks) {
