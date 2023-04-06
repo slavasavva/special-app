@@ -19,7 +19,6 @@ import java.util.List;
 public class MorphologyServiceImpl implements MorphologyService {
     private final LuceneMorphology luceneMorphology;
     private final WordRepository wordRepository;
-
     // спринг по типу аргумента, ищет в своем контексте объект типа и
     // сам подставляет в конструктор, на этапе создания объекта
     // объект создается в классе LemmaConfiguration.java
@@ -27,7 +26,6 @@ public class MorphologyServiceImpl implements MorphologyService {
         this.luceneMorphology = luceneMorphology;
         this.wordRepository = wordRepository;
     }
-
     /**
      * @param word слово
      * @return список морфологических форм
@@ -102,5 +100,4 @@ public class MorphologyServiceImpl implements MorphologyService {
         newWord.setMorphologyInfo(String.valueOf(morphInfo));
         return newWord;
     }
-
 }

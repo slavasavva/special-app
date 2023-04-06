@@ -9,5 +9,4 @@ public class SpringLemmaExampleApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpringLemmaExampleApplication.class, args);
     }
-
 }

@@ -9,6 +9,7 @@ import searchengine.model.Site;
 import searchengine.model.StatusType;
 
 
+import javax.persistence.EnumType;
 import java.util.List;
 
 @Repository
@@ -22,7 +23,12 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     void deleteByUrl(String url);
 
     @Modifying
-    @Query(value = "update search_engine.site where url = :url set type = :type", nativeQuery = true)
+    @Query(value = "update site set type = :type where url = :url", nativeQuery = true)
     @Transactional
-    void setType(String url, StatusType type);
+    void setType(String url, String type);
+
+    @Modifying
+    @Query(value = "update site set type = :newType where type = :oldType", nativeQuery = true)
+    @Transactional
+    void stopIndexing(String newType, String oldType);
 }

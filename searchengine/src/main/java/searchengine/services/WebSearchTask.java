@@ -5,7 +5,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import searchengine.model.Page;
-import searchengine.model.StatusType;
 import searchengine.repositories.PageRepository;
 import searchengine.repositories.SiteRepository;
 
@@ -16,7 +15,7 @@ import java.util.StringJoiner;
 import java.util.concurrent.RecursiveAction;
 
 public class WebSearchTask extends RecursiveAction {
-    private IndexServiceImpl indexService;
+    private IndexingServiceImpl indexService;
     private String startUrl;
 
     private String url;
@@ -39,20 +38,21 @@ public class WebSearchTask extends RecursiveAction {
         this.siteRepository = siteRepository;
         this.pageRepository = pageRepository;
     }
+    public boolean stop = false;
 
     @Override
     protected void compute() {
         int allPaths = pageRepository.findAll().size();
-        if (allPaths > 100) {
+        if (allPaths > 10) {
             return;
         }
         if (wrongLink(siteId, url)) {
             return;
         }
-//        if (indexService.stop) {
-//            System.out.println("СТООООП!");
-//            return;
-//        }
+        if (stop) {
+            System.out.println("СТООООП!");
+            return;
+        }
         System.out.println("(" + allPaths + ") processing URL " + url);
         try {
             Thread.sleep(500);
@@ -68,9 +68,9 @@ public class WebSearchTask extends RecursiveAction {
                     WebSearchTask webSearchTask = new WebSearchTask(startUrl, siteId, link,
                             siteRepository, pageRepository);
                     webSearchTask.fork();
-                   if (subTasks.size() < 10) {
+                    if (subTasks.size() < 10) {
                         subTasks.add(webSearchTask);
-                   }
+                    }
                 }
             }
             for (WebSearchTask webSearchTask : subTasks) {
@@ -79,6 +79,7 @@ public class WebSearchTask extends RecursiveAction {
         } catch (Exception e) {
             addPage(siteId, url, 500, e.getMessage());
             System.err.println("Exception for '" + url + "': " + e.getMessage());
+
         }
     }
 
