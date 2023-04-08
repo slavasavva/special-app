@@ -9,4 +9,9 @@ public interface LemmaRepository {
     @Query(value = "SELECT * from words where word LIKE %:wordPart% LIMIT :limit", nativeQuery = true)
     List<Lemma> findAllContains(String wordPart, int limit);
 
+    @Modifying
+    @Query(value = "delete from lemma where id = :Id", nativeQuery = true)
+    @Transactional
+    void deleteById(Long Id);
+
 }

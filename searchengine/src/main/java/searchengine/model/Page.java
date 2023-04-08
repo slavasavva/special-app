@@ -11,14 +11,23 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Table(name = "page", indexes = @Index(columnList = "path"))
+//@Table(uniqueConstraints = {
+//        @UniqueConstraint(name = "UniqueSiteAndPath", columnNames = {"site_id", "`path`"})
+//})
+
+
 public class Page {
 
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Id
     Long id;
 
-    @Column(name = "site_id", nullable = false)
-    private Long siteId;
+   @Column(name = "site_id", nullable = false)
+   private Long siteId;
+
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "site_id")
+//    private Site site;
 
     @Column(nullable = false)
     private String path;

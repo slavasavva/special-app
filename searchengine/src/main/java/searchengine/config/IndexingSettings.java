@@ -12,4 +12,5 @@ import java.util.List;
 @ConfigurationProperties(prefix = "indexing-settings")
 public class IndexingSettings {
     private List<Site> sites;
+    private double siteIndexingSuccessfulPercentage;
 }

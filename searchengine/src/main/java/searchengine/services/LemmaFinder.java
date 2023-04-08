@@ -2,15 +2,37 @@ package searchengine.services;
 
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 
 import java.io.IOException;
 import java.util.*;
 
 public class LemmaFinder {
+    public static void main(String[] args) throws IOException {
+        LemmaFinder lemmaFinder = getInstance();
+        Map<String, Integer> savva = lemmaFinder.collectLemmas("Повторное появление леопарда в Осетии позволяет предположить, что леопард постоянно обитает в некоторых районах Северного Кавказа.");
+        for (Map.Entry<String, Integer> entry : savva.entrySet()){
+            System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+    }
     private final LuceneMorphology luceneMorphology;
     private static final String WORD_TYPE_REGEX = "\\W\\w&&[^а-яА-Я\\s]";
     private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ"};
+    private String html;
+    private String siteUrl;
 
+    public void setHtml(String html) {
+        this.html = html;
+    }
+
+    public void setSiteUrl(String siteUrl) {
+        this.siteUrl = siteUrl;
+    }
+
+    public String StripHtml(String html) {
+        return Jsoup.clean(html, Whitelist.none());
+    }
     public static LemmaFinder getInstance() throws IOException {
         LuceneMorphology morphology= new RussianLuceneMorphology();
         return new LemmaFinder(morphology);

@@ -10,7 +10,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   show-sql: true
 indexing-settings:
   sites:
@@ -22,3 +22,5 @@ indexing-settings:
 
     - url: https://www.playback.ru
       name: PlayBack.Ru
+  siteIndexingSuccessfulPercentage: 0.7
+

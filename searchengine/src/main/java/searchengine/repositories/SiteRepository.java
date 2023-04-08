@@ -6,16 +6,20 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import searchengine.model.Site;
-import searchengine.model.StatusType;
 
 
-import javax.persistence.EnumType;
 import java.util.List;
 
 @Repository
 public interface SiteRepository extends JpaRepository<Site, Long> {
-    @Query(value = "select * from site where url = :url", nativeQuery = true)
+    @Query(value = "SELECT * from site where url = :url", nativeQuery = true)
     List<Site> findByUrl(String url);
+
+    @Query(value = "SELECT * from site where url = :url", nativeQuery = true)
+    Site findSiteByUrl(String url);
+
+    @Query(value = "SELECT id from site where url = :url", nativeQuery = true)
+    Long GetSiteIdByUrl(String url);
 
     @Modifying
     @Query(value = "delete from site where url = :url", nativeQuery = true)
@@ -23,12 +27,27 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     void deleteByUrl(String url);
 
     @Modifying
+    @Query(value = "update site set type = :type last_error = :lastError where url = :url", nativeQuery = true)
+    @Transactional
+    void setTypeAndLastError(String url, String type, String lastError);
+
+    @Modifying
     @Query(value = "update site set type = :type where url = :url", nativeQuery = true)
     @Transactional
     void setType(String url, String type);
 
     @Modifying
-    @Query(value = "update site set type = :newType where type = :oldType", nativeQuery = true)
+    @Query(value = "update site set last_error = :error where url = :url", nativeQuery = true)
     @Transactional
-    void stopIndexing(String newType, String oldType);
+    void setLastError(String url, String error);
+
+    @Modifying
+    @Query(value = "update site set type = :newType where type = :oldType and url = :url", nativeQuery = true)
+    @Transactional
+    void stopIndexing(String url, String newType, String oldType);
+
+    @Modifying
+    @Query(value = "update site set status_time = :statusTime where url = :url", nativeQuery = true)
+    @Transactional
+    void statusTime(String url, String statusTime);
 }

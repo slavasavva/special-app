@@ -1,17 +1,15 @@
 package searchengine.services;
 
-import searchengine.dto.IndexPageResponse;
 import searchengine.dto.IndexingStatusResponse;
-import searchengine.dto.StartIndexingResponse;
-import searchengine.dto.StopIndexingResponse;
 
 import java.io.IOException;
 
 public interface IndexingService {
-    StartIndexingResponse startIndexing() throws IOException;
+    IndexingStatusResponse startIndexing() throws IOException;
 
-    StopIndexingResponse stopIndexing();
+    IndexingStatusResponse stopIndexing();
 
-    IndexingStatusResponse indexOnePage(String url);
+    IndexingStatusResponse indexPage(String url);
+
 }
 
