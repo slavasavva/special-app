@@ -9,6 +9,16 @@ import java.io.IOException;
 import java.util.*;
 
 public class LemmaFinder {
+    LemmaFinder lemmaFinder;
+
+    {
+        try {
+            lemmaFinder = getInstance();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         LemmaFinder lemmaFinder = getInstance();
         Map<String, Integer> savva = lemmaFinder.collectLemmas("Повторное появление леопарда в Осетии позволяет предположить, что леопард постоянно обитает в некоторых районах Северного Кавказа.");
@@ -30,7 +40,13 @@ public class LemmaFinder {
         this.siteUrl = siteUrl;
     }
 
-    public String StripHtml(String html) {
+    public Map<String, Integer> StripHtml(String html) {
+        Map<String, Integer> lemmas
+                = lemmaFinder.collectLemmas(lem(html));
+        return lemmas;
+    }
+
+    private String lem(String html){
         return Jsoup.clean(html, Whitelist.none());
     }
     public static LemmaFinder getInstance() throws IOException {
