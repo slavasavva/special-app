@@ -126,7 +126,6 @@ public class IndexingServiceImpl implements IndexingService {
         page.setContent(content);
         pageRepository.save(page);
         indexingPage.indexingPage(page);
-
     }
 
     @Override
@@ -142,9 +141,15 @@ public class IndexingServiceImpl implements IndexingService {
 
     @Override
     public IndexingStatusResponse indexPage(String url) {
+        String regexUrl = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w\\.-]*)*\\/?$";
+        if (!url.matches(regexUrl)){
+            throw new IndexingStatusException
+                    ("Данный текст не является адресом страницы");
+        }
         if (findSiteByPageUrl(url) == null) {
             Long siteId = addSite(getTopLevelUrl(url), getSiteName(url));
-            addPage(siteId, deleteTopLevelUrl(url), 200, getHtmlFromUrl(url));
+//            addPage(siteId, deleteTopLevelUrl(url), 200, getHtmlFromUrl(url));
+            webSearchTask.createPage(siteId, deleteTopLevelUrl(url), 200, getHtmlFromUrl(url));
             throw new IndexingStatusException
                     ("Данная страница находится за пределами сайтов," +
                             " указанных в конфигурационном файле");

@@ -9,15 +9,14 @@ import java.io.IOException;
 import java.util.*;
 
 public class LemmaFinder {
-    LemmaFinder lemmaFinder;
-
-    {
-        try {
-            lemmaFinder = getInstance();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    LemmaFinder lemmaFinder;
+//    {
+//        try {
+//            LemmaFinder lemmaFinder = getInstance();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public static void main(String[] args) throws IOException {
         LemmaFinder lemmaFinder = getInstance();
@@ -41,12 +40,13 @@ public class LemmaFinder {
     }
 
     public Map<String, Integer> StripHtml(String html) {
+        LemmaFinder lemmaFinder = new LemmaFinder();
         Map<String, Integer> lemmas
-                = lemmaFinder.collectLemmas(lem(html));
+                = lemmaFinder.collectLemmas(lemmaClining(html));
         return lemmas;
     }
 
-    private String lem(String html){
+    private String lemmaClining(String html){
         return Jsoup.clean(html, Whitelist.none());
     }
     public static LemmaFinder getInstance() throws IOException {

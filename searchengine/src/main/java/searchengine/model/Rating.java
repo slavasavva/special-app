@@ -21,5 +21,5 @@ public class Rating {
     private Long lemmaId;
 
     @Column(nullable = false)
-    private Float rating;
+    private int rating;
 }

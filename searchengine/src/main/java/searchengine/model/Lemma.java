@@ -23,7 +23,7 @@ public class Lemma {
     private String lemma;
 
     @Column(nullable = false)
-    private Long frequency;
+    private int frequency;
 }
 
 

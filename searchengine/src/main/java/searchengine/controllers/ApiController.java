@@ -1,5 +1,6 @@
 package searchengine.controllers;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.IndexingStatusResponse;
@@ -9,6 +10,7 @@ import searchengine.services.IndexingServiceImpl;
 import searchengine.services.StatisticsService;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
@@ -48,12 +50,28 @@ public class ApiController {
 //        throw new UnknownIndexingStatusException("Неизвестная ошибка индексирования");
 //    }
 
-    @PostMapping("/indexPage")
+//    @PostMapping("/indexPage")
+//    public ResponseEntity<IndexingStatusResponse>
+//    indexPage(@RequestParam String url) throws IOException {
+//        IndexingStatusResponse status = indexingService.indexPage(url);
+//        return ResponseEntity.ok(status);
+//    }
+    @PostMapping("/indexPage/{url}")
     public ResponseEntity<IndexingStatusResponse>
-    indexPage(@RequestParam String url) throws IOException {
+    indexPage(@PathVariable String url) throws IOException {
         IndexingStatusResponse status = indexingService.indexPage(url);
         return ResponseEntity.ok(status);
     }
+
+
+//    @GetMapping("/books/{id}")
+//    public ResponseEntity<?> get(@PathVariable int id) {
+//        Optional<Track> optionalTrack = trackRepository.findById(id);
+//        if (!optionalTrack.isPresent()) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+//        }
+//        return new ResponseEntity<>(optionalTrack.get(), HttpStatus.OK);
+//    }
 
 //    @GetMapping("/search")
 //    public ResponseEntity<StopIndexingResponse> search() {

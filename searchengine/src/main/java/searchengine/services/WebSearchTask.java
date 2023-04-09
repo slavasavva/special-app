@@ -14,7 +14,7 @@ import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebSearchTask extends RecursiveAction {
-    private IndexingServiceImpl indexingService;
+    private IndexingPage indexingPage;
     private String startUrl;
 
     private String url;
@@ -53,9 +53,9 @@ public class WebSearchTask extends RecursiveAction {
         if (wrongLink(siteId, url)) {
             return;
         }
-        if (Objects.equals(indexingService.deleteTopLevelUrl(url), "/")) {
-            return;
-        }
+//       if (Objects.equals(indexingService.deleteTopLevelUrl(url), "/")) {
+//            return;
+//        }
         if (stop.get()) {
             System.out.println("(" + allPaths + ") stopping URL " + url);
             return;
@@ -116,8 +116,8 @@ public class WebSearchTask extends RecursiveAction {
         synchronized (pageRepository) {
             if (!wrongLink(siteId, path)) {
                 try {
-                    indexingService.addPage(siteId, indexingService.deleteTopLevelUrl(path), code, content);
-//                    createPage(siteId, indexingService.deleteTopLevelUrl(path), code, content);
+//                    indexingService.addPage(siteId, indexingService.deleteTopLevelUrl(path), code, content);
+                    createPage(siteId, deleteTopLevelUrl(path), code, content);
                     siteRepository.statusTime(url, formatter.format(date));
 
 //TODO page to lemma
@@ -128,12 +128,18 @@ public class WebSearchTask extends RecursiveAction {
         }
     }
 
-//    private void createPage(Long siteId, String path, int code, String content) {
-//        Page page = new Page();
-//        page.setSiteId(siteId);
-//        page.setPath(path);
-//        page.setCode(code);
-//        page.setContent(content);
-//        pageRepository.save(page);
-//    }
+    public String deleteTopLevelUrl(String url) {
+        String[] splitSite = url.split("//|/");
+        return url.replace((splitSite[0] + "//" + splitSite[1]), "");
+    }
+
+    public void createPage(Long siteId, String path, int code, String content) {
+        Page page = new Page();
+        page.setSiteId(siteId);
+        page.setPath(path);
+        page.setCode(code);
+        page.setContent(content);
+        pageRepository.save(page);
+        indexingPage.indexingPage(page);
+    }
 }
