@@ -3,6 +3,7 @@ package searchengine.services;
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 
 import java.io.IOException;
@@ -18,13 +19,7 @@ public class LemmaFinder {
 //        }
 //    }
 
-    public static void main(String[] args) throws IOException {
-        LemmaFinder lemmaFinder = getInstance();
-        Map<String, Integer> savva = lemmaFinder.collectLemmas("Повторное появление леопарда в Осетии позволяет предположить, что леопард постоянно обитает в некоторых районах Северного Кавказа.");
-        for (Map.Entry<String, Integer> entry : savva.entrySet()){
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
-    }
+
     private final LuceneMorphology luceneMorphology;
     private static final String WORD_TYPE_REGEX = "\\W\\w&&[^а-яА-Я\\s]";
     private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ"};
@@ -39,14 +34,38 @@ public class LemmaFinder {
         this.siteUrl = siteUrl;
     }
 
+
+    public static void main(String[] args) throws IOException {
+        LemmaFinder lemmaFinder = getInstance();
+        String html = getHtmlFromUrl("https://www.playback.ru");
+//        System.out.println(html);
+        Map<String, Integer> savva = lemmaFinder.collectLemmas(htmlCliningTag(html));
+//        Map<String, Integer> savva = lemmaFinder.collectLemmas("Повторное появление леопарда в Осетии позволяет предположить, что леопард постоянно обитает в некоторых районах Северного Кавказа.");
+        for (Map.Entry<String, Integer> entry : savva.entrySet()){
+            System.out.println(entry.getKey() + " " + entry.getValue());
+        }
+
+    }
+
+
+
+    private static String getHtmlFromUrl(String url) {
+        try {
+            Document document = Jsoup.connect(url).get();
+            return document.html();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public Map<String, Integer> StripHtml(String html) {
         LemmaFinder lemmaFinder = new LemmaFinder();
         Map<String, Integer> lemmas
-                = lemmaFinder.collectLemmas(lemmaClining(html));
+                = lemmaFinder.collectLemmas(htmlCliningTag(html));
         return lemmas;
     }
 
-    private String lemmaClining(String html){
+    static String htmlCliningTag(String html){
         return Jsoup.clean(html, Whitelist.none());
     }
     public static LemmaFinder getInstance() throws IOException {

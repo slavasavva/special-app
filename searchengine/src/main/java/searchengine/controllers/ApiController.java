@@ -56,9 +56,9 @@ public class ApiController {
 //        IndexingStatusResponse status = indexingService.indexPage(url);
 //        return ResponseEntity.ok(status);
 //    }
-    @PostMapping("/indexPage/{url}")
+    @PostMapping("/indexPage/")
     public ResponseEntity<IndexingStatusResponse>
-    indexPage(@PathVariable String url) throws IOException {
+    indexPage(@RequestParam String url) throws IOException {
         IndexingStatusResponse status = indexingService.indexPage(url);
         return ResponseEntity.ok(status);
     }
