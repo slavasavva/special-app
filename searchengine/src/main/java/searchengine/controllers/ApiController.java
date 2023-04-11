@@ -1,12 +1,18 @@
 package searchengine.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import searchengine.dto.IndexingStatusResponse;
+import searchengine.dto.SearchRequest;
+import searchengine.dto.SearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
+import searchengine.exceptions.SearchException;
 import searchengine.services.IndexingService;
 import searchengine.services.IndexingServiceImpl;
+import searchengine.services.SearchService;
 import searchengine.services.StatisticsService;
 
 import java.io.IOException;
@@ -17,6 +23,7 @@ import java.util.Optional;
 public class ApiController {
     private final StatisticsService statisticsService;
     private final IndexingService indexingService;
+    private SearchService searchService;
 
     public ApiController(StatisticsService statisticsService, IndexingService indexService, IndexingServiceImpl indexingServiceImpl) {
         this.statisticsService = statisticsService;
@@ -50,31 +57,25 @@ public class ApiController {
 //        throw new UnknownIndexingStatusException("Неизвестная ошибка индексирования");
 //    }
 
-//    @PostMapping("/indexPage")
-//    public ResponseEntity<IndexingStatusResponse>
-//    indexPage(@RequestParam String url) throws IOException {
-//        IndexingStatusResponse status = indexingService.indexPage(url);
-//        return ResponseEntity.ok(status);
-//    }
-    @PostMapping("/indexPage/")
+    @PostMapping("/indexPage")
     public ResponseEntity<IndexingStatusResponse>
     indexPage(@RequestParam String url) throws IOException {
         IndexingStatusResponse status = indexingService.indexPage(url);
         return ResponseEntity.ok(status);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<SearchResponse> searchService(@RequestParam(name = "query") String query,
+                                                 @RequestParam(name = "site", required = false) String site,
+                                                 @RequestParam(name = "offset", defaultValue = "0") int offset,
+                                                 @RequestParam(name = "limit", defaultValue = "20") int limit) throws IOException {
+        if (query.isEmpty()) {
+            throw new SearchException("Пустой поисковый запрос");
+        }
 
-//    @GetMapping("/books/{id}")
-//    public ResponseEntity<?> get(@PathVariable int id) {
-//        Optional<Track> optionalTrack = trackRepository.findById(id);
-//        if (!optionalTrack.isPresent()) {
-//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-//        }
-//        return new ResponseEntity<>(optionalTrack.get(), HttpStatus.OK);
-//    }
-
-//    @GetMapping("/search")
-//    public ResponseEntity<StopIndexingResponse> search() {
-//        return ResponseEntity.ok(indexingService.stopIndexing());
-//    }
+        SearchRequest request = new SearchRequest(query, site, offset, limit);
+        Logger log = LoggerFactory.getLogger(ApiController.class);
+        log.info(request.toString());
+        return ResponseEntity.ok(searchService.searchService(request));
+    }
 }

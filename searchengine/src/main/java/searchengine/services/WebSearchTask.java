@@ -14,7 +14,6 @@ import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebSearchTask extends RecursiveAction {
-    private IndexingPage indexingPage;
     private String startUrl;
 
     private String url;
@@ -25,7 +24,12 @@ public class WebSearchTask extends RecursiveAction {
 
     private final PageRepository pageRepository;
 
+    private IndexingPage indexingPage;
+
+    private IndexingService indexingService;
+
     private List<WebSearchTask> subTasks = new LinkedList<>();
+
 
     private Date date = new Date(System.currentTimeMillis());
 
@@ -33,29 +37,33 @@ public class WebSearchTask extends RecursiveAction {
 
     private AtomicBoolean stop;
 
-    public WebSearchTask(String startUrl, Long siteId, String url,
-                         SiteRepository siteRepository, PageRepository pageRepository,
-                         AtomicBoolean stop) {
-        this.startUrl = startUrl;
-        this.siteId = siteId;
+    private WebSearchTaskContext webSearchTaskContext;
+
+    public WebSearchTask(String url, WebSearchTaskContext webSearchTaskContext) {
         this.url = url;
-        this.siteRepository = siteRepository;
-        this.pageRepository = pageRepository;
-        this.stop = stop;
+        this.startUrl = webSearchTaskContext.getStartUrl();
+        this.siteId = webSearchTaskContext.getSiteId();
+        this.siteRepository = webSearchTaskContext.getSiteRepository();
+        this.pageRepository = webSearchTaskContext.getPageRepository();
+        this.indexingPage = webSearchTaskContext.getIndexingPage();
+        this.stop = webSearchTaskContext.getStop();
+        this.webSearchTaskContext = webSearchTaskContext;
     }
 
     @Override
     protected void compute() {
+        siteRepository.statusTime(url, formatter.format(date));
         int allPaths = pageRepository.findAll().size();
-        if (allPaths > 20) {
+        if (allPaths > 10) {
             return;
         }
         if (wrongLink(siteId, url)) {
             return;
         }
-//       if (Objects.equals(indexingService.deleteTopLevelUrl(url), "/")) {
-//            return;
-//        }
+       if (!url.startsWith(startUrl.replace("www.", "" ))&&
+      !url.startsWith(startUrl)) {
+           return;
+      }
         if (stop.get()) {
             System.out.println("(" + allPaths + ") stopping URL " + url);
             return;
@@ -72,8 +80,7 @@ public class WebSearchTask extends RecursiveAction {
             for (Element linkElement : linkElements) {
                 String link = linkElement.attr("abs:href");
                 if (!wrongLink(siteId, link)) {
-                    WebSearchTask webSearchTask = new WebSearchTask(startUrl, siteId, link,
-                            siteRepository, pageRepository, stop);
+                    WebSearchTask webSearchTask = new WebSearchTask(link, webSearchTaskContext);
                     webSearchTask.fork();
                     if (subTasks.size() < 10) {
                         subTasks.add(webSearchTask);
@@ -85,6 +92,7 @@ public class WebSearchTask extends RecursiveAction {
             }
         } catch (Exception e) {
             processPage(siteId, url, 500, e.getMessage());
+            siteRepository.statusTime(url, formatter.format(date));
             System.err.println("Exception for '" + url + "': " + e.getMessage());
         }
     }
@@ -99,9 +107,8 @@ public class WebSearchTask extends RecursiveAction {
     }
 
     private boolean wrongLink(Long siteId, String link) {
-        int sitePaths = pageRepository.findBySiteIdAndPath(siteId, link).size();
+        int sitePaths = pageRepository.findBySiteIdAndPath(siteId, deleteTopLevelUrl(link)).size();
         boolean wrongLink = sitePaths > 0
-                || !link.startsWith(startUrl)
                 || link.contains("#")
                 || link.endsWith("doc")
                 || link.endsWith("gif")
@@ -116,11 +123,8 @@ public class WebSearchTask extends RecursiveAction {
         synchronized (pageRepository) {
             if (!wrongLink(siteId, path)) {
                 try {
-//                    indexingService.addPage(siteId, indexingService.deleteTopLevelUrl(path), code, content);
-                    createPage(siteId, deleteTopLevelUrl(path), code, content);
-                    siteRepository.statusTime(url, formatter.format(date));
-
-//TODO page to lemma
+                    Page page = createPage(siteId, deleteTopLevelUrl(path), code, content);
+                    indexingPage.indexingPage(page);
                 } catch (Exception e) {
                     System.err.println(e);
                 }
@@ -128,18 +132,18 @@ public class WebSearchTask extends RecursiveAction {
         }
     }
 
-    public String deleteTopLevelUrl(String url) {
+    private String deleteTopLevelUrl(String url) {
         String[] splitSite = url.split("//|/");
         return url.replace((splitSite[0] + "//" + splitSite[1]), "");
     }
 
-    public void createPage(Long siteId, String path, int code, String content) {
+    public Page createPage(Long siteId, String path, int code, String content) {
         Page page = new Page();
         page.setSiteId(siteId);
         page.setPath(path);
         page.setCode(code);
         page.setContent(content);
         pageRepository.save(page);
-        indexingPage.indexingPage(page);
+        return page;
     }
 }

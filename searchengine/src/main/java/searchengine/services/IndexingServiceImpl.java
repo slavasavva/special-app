@@ -23,8 +23,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Service
 @RequiredArgsConstructor
 public class IndexingServiceImpl implements IndexingService {
-    IndexingPage indexingPage;
-    WebSearchTask webSearchTask;
+    private final IndexingPageImpl indexingPage;
+
     private final IndexingSettings indexingSettings;
 
     private final SiteRepository siteRepository;
@@ -42,15 +42,14 @@ public class IndexingServiceImpl implements IndexingService {
     private final AtomicBoolean stop = new AtomicBoolean();
 
     @Override
+
     public IndexingStatusResponse startIndexing() throws IndexingStatusException {
         if (indexing) {
-            throw new IndexingStatusException("Индексация уже запущена");
+            return new IndexingStatusResponse(false, "Индексация уже запущена");
         }
         indexing = true;
         indexingSettings.getSites().forEach(configSite -> new Thread(() -> indexSite(configSite)).start());
-        IndexingStatusResponse startIndexingResponse = new IndexingStatusResponse();
-        startIndexingResponse.setResult(true);
-        return startIndexingResponse;
+        return new IndexingStatusResponse(true, null);
     }
 
     private void indexSite(searchengine.config.Site configSite) {
@@ -61,7 +60,9 @@ public class IndexingServiceImpl implements IndexingService {
             deletePageBySiteId(oldSiteId);
         }
         Long siteId = addSite(configSite.getUrl(), configSite.getName());
-        new ForkJoinPool().invoke(new WebSearchTask(url, siteId, url, siteRepository, pageRepository, stop));
+        WebSearchTaskContext webSearchTaskContext = new WebSearchTaskContext(url, siteId,
+                siteRepository, pageRepository, indexingPage, stop);
+        new ForkJoinPool().invoke(new WebSearchTask(url, webSearchTaskContext));
         setSiteStatusType(url, siteId);
         done();
     }
@@ -118,53 +119,50 @@ public class IndexingServiceImpl implements IndexingService {
         return siteRepository.save(site).getId();
     }
 
-    public void addPage(Long siteId, String path, int code, String content) {
+    private Page addPage(Long siteId, String path, int code, String content) {
         Page page = new Page();
         page.setSiteId(siteId);
         page.setPath(path);
         page.setCode(200);
         page.setContent(content);
         pageRepository.save(page);
-        indexingPage.indexingPage(page);
+        return page;
     }
 
     @Override
     public IndexingStatusResponse stopIndexing() throws IndexingStatusException {
         if (!indexing) {
-            throw new IndexingStatusException("Индексация не запущена");
+            return new IndexingStatusResponse(false, "Индексация не запущена");
+//            throw new IndexingStatusException("Индексация не запущена");
         }
         stop.set(true);
-        IndexingStatusResponse stopIndexingResponse = new IndexingStatusResponse();
-        stopIndexingResponse.setResult(true);
-        return stopIndexingResponse;
+//        IndexingStatusResponse stopIndexingResponse = new IndexingStatusResponse();
+//        stopIndexingResponse.setResult(true);
+        return new IndexingStatusResponse(true, null);
     }
 
     @Override
     public IndexingStatusResponse indexPage(String url) {
-        String regexUrl = "^(https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w\\.-]*)*\\/?$";
-        if (!url.matches(regexUrl)){
-            throw new IndexingStatusException
-                    ("Данный текст не является адресом страницы");
-        }
-        if (findSiteByPageUrl(url) == null) {
-            Long siteId = addSite(getTopLevelUrl(url), getSiteName(url));
-//            addPage(siteId, deleteTopLevelUrl(url), 200, getHtmlFromUrl(url));
-            webSearchTask.createPage(siteId, deleteTopLevelUrl(url), 200, getHtmlFromUrl(url));
-            throw new IndexingStatusException
-                    ("Данная страница находится за пределами сайтов," +
-                            " указанных в конфигурационном файле");
+        if (!findSiteByPageUrl(url)) {
+            return new IndexingStatusResponse(false, "Данная страница находится за пределами сайтов," +
+                    " указанных в конфигурационном файле");
         }
         String path = deleteTopLevelUrl(url);
         Long pageId = pageRepository.getPageIdByPath(path);
-        Long siteId = siteRepository.GetSiteIdByUrl(url);
-        if (pageId != 0) {
+        Long siteId = siteRepository.GetSiteIdByUrl(getTopLevelUrl(url));
+        String content = getHtmlFromUrl(url);
+        if (pageId == null){
+            addPage(siteId, path, 200, content);
+        }
+       else  {
             List<Long> lemmasId = ratingRepository.getLemmasIgByPageId(pageId);
             for (Long lemmaId : lemmasId) {
                 lemmaRepository.deleteById(lemmaId);
             }
             pageRepository.deleteById(pageId);
             ratingRepository.deleteByPageId(pageId);
-            addPage(siteId, deleteTopLevelUrl(url), 200, getHtmlFromUrl(url));
+            Page page = addPage(siteId, path, 200, content);
+            indexingPage.indexingPage(page);
         }
         return new IndexingStatusResponse(true, null);
     }
@@ -178,13 +176,13 @@ public class IndexingServiceImpl implements IndexingService {
         }
     }
 
-    private String findSiteByPageUrl(String url) {
+    private boolean findSiteByPageUrl(String url) {
         for (searchengine.config.Site site : indexingSettings.getSites()) {
             if (url.startsWith(site.getUrl())) {
-                return site.getUrl();
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     public String deleteTopLevelUrl(String url) {

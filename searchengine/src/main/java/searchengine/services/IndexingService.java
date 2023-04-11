@@ -1,6 +1,7 @@
 package searchengine.services;
 
 import searchengine.dto.IndexingStatusResponse;
+import searchengine.dto.SearchResponse;
 
 import java.io.IOException;
 
@@ -10,6 +11,7 @@ public interface IndexingService {
     IndexingStatusResponse stopIndexing();
 
     IndexingStatusResponse indexPage(String url);
+
 
 }
 

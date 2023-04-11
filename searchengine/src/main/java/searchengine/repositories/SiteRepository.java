@@ -27,7 +27,7 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     void deleteByUrl(String url);
 
     @Modifying
-    @Query(value = "update site set type = :type last_error = :lastError where url = :url", nativeQuery = true)
+    @Query(value = "update site set (type, last_error) values (:type, :lastError) where url = :url", nativeQuery = true)
     @Transactional
     void setTypeAndLastError(String url, String type, String lastError);
 

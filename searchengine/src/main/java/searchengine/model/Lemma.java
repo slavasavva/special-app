@@ -11,6 +11,10 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "lemma")
+
+//(uniqueConstraints = {
+//@UniqueConstraint(name = "uniqueSiteAndLemma", columnNames = {"site_id", "lemma"})
+//}, indexes = @javax.persistence.Index(name="lemma_index", columnList = "lemma"))
 public class Lemma {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
