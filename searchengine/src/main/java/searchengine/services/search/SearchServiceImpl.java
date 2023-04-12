@@ -52,6 +52,9 @@ public class SearchServiceImpl implements SearchService {
         if (request.getQuery() == null || request.getQuery().length() == 0) {
             return new SearchResponse(false, "Задан пустой поисковый запрос");
         }
+        Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());
+        searchWordsNormalForms = (String[]) setRequestLemmas.toArray();
+
         if (searchWordsNormalForms.length == 0) {
             return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса");
         }
@@ -68,8 +71,7 @@ public class SearchServiceImpl implements SearchService {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
         sitesToSearch = getSitesToSearch(request.getSite());
-        Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());
-        searchWordsNormalForms = (String[]) setRequestLemmas.toArray();
+
         double maxRelevance = foundPages.get(0).getRelevance();
 
         List<FoundPage> searchResults = processPages(foundPages, filteredLemmas);
