@@ -26,8 +26,10 @@ public class SearchServiceImpl implements SearchService {
     LemmaRepository lemmaRepository;
     PageRepository pageRepository;
     RatingRepository ratingRepository;
+    StringBuilder stringBuilder;
     private static final double THRESHOLD = 0.97;
     LemmaFinder lemmaFinder;
+
 
     {
         try {
@@ -38,16 +40,6 @@ public class SearchServiceImpl implements SearchService {
     }
 
     private final IndexingSettings indexingSettings;
-
-//    public static void main(String[] args) throws IOException {
-//        LemmaFinder lemmaFinder1 = LemmaFinder.getInstance();
-//        Map<String, Integer> lem = lemmaFinder1.collectLemmas("леопарды в горах алтая");
-//        Set<String> le = lemmaFinder1.getLemmaSet("Выхожу один я на дорогу");
-//        for (Map.Entry<String, Integer> entry : lem.entrySet()) {
-//            System.out.println(entry.getKey() + " " + entry.getValue());
-//        }
-//        System.out.println(le);
-//    }
 
     List<Site> sitesToSearch;
     String[] searchWordsNormalForms;
@@ -82,8 +74,7 @@ public class SearchServiceImpl implements SearchService {
         searchWordsNormalForms = (String[]) setRequestLemmas.toArray();
         double maxRelevance = foundPages.get(0).getRelevance();
 
-
-        List<FoundPage> searchResults = processPages(foundPages);
+        List<FoundPage> searchResults = processPages(foundPages, filteredLemmas);
         return new SearchResponse(
                 true,
                 message + String.format(" Время поиска : %.3f сек.", (System.nanoTime() - searchStartTime) / 1000000000.),
@@ -92,19 +83,13 @@ public class SearchServiceImpl implements SearchService {
         );
     }
 
-    List<FoundPage> processPages(List<PageDTO> foundPages) {
+    List<FoundPage> processPages(List<PageDTO> foundPages, List<String> searchQuery) {
         List<FoundPage> result = new ArrayList<>();
         for (PageDTO page : foundPages) {
             Document content = Jsoup.parse(page.getContent());
-            result.add(new FoundPage(page.getPath(), content.title(), "snippet", page.getRelevance()));
+            result.add(new FoundPage(page.getPath(), content.title(), stringBuilder.getSnippet(content.title(), searchQuery), page.getRelevance()));
         }
         return null;
-    }
-
-    boolean lemmasContainAnyWordNormalForm(List<String> wordNormalForms, List<String> lemmas) {
-        List<String> lemmasWordIntersection = new ArrayList<String>(lemmas);
-        lemmasWordIntersection.retainAll(wordNormalForms);
-        return !lemmasWordIntersection.isEmpty();
     }
 
     @Transactional
@@ -162,6 +147,13 @@ public class SearchServiceImpl implements SearchService {
         }
         return siteIds;
     }
+
+
+//    boolean lemmasContainAnyWordNormalForm(List<String> wordNormalForms, List<String> lemmas) {
+//        List<String> lemmasWordIntersection = new ArrayList<String>(lemmas);
+//        lemmasWordIntersection.retainAll(wordNormalForms);
+//        return !lemmasWordIntersection.isEmpty();
+//    }
 
 
     //        String finalQuery = request.getQuery();
