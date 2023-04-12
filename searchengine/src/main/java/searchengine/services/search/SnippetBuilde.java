@@ -1,4 +1,4 @@
-//package searchengine.services;
+//package searchengine.services.search;
 //
 //import java.util.ArrayList;
 //import java.util.List;
@@ -7,7 +7,7 @@
 //
 //public class SnippetBuilder {
 //
-//    public static String getSnippetFromPage(String text, List<String> searchQuery) {
+//    public static String getSnippetFromPage(MorphologyService ms, String text, List<String> searchQuery) {
 //        List<String> queryLocalCopy = new ArrayList<>(searchQuery);
 //        List<String> words = List.of(text.split("\\b"));
 //        ListIterator<String> iterator;
@@ -17,7 +17,7 @@
 //            if(queryLocalCopy.isEmpty()) {
 //                break;
 //            }
-//            iterator = queryLocalCopy.listIterator();
+//            iterator = queryLoacalCopy.listIterator();
 //            while(iterator.hasNext()) {
 //                List<String> wordNormalForm = new ArrayList<>(ms.getNormalFormOfAWord(word.toLowerCase(Locale.ROOT)));
 //                wordNormalForm.retainAll(ms.getNormalFormOfAWord(iterator.next()));

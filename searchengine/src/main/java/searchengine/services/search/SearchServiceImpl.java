@@ -24,13 +24,10 @@ import java.util.*;
 public class SearchServiceImpl implements SearchService {
     SiteRepository siteRepository;
     LemmaRepository lemmaRepository;
-    LemmaFinder lemmaFinder;
-
     PageRepository pageRepository;
-
     RatingRepository ratingRepository;
-
     private static final double THRESHOLD = 0.97;
+    LemmaFinder lemmaFinder;
 
     {
         try {
@@ -42,15 +39,15 @@ public class SearchServiceImpl implements SearchService {
 
     private final IndexingSettings indexingSettings;
 
-    public static void main(String[] args) throws IOException {
-        LemmaFinder lemmaFinder1 = LemmaFinder.getInstance();
-        Map<String, Integer> lem = lemmaFinder1.collectLemmas("леопарды в горах алтая");
-        Set<String> le = lemmaFinder1.getLemmaSet("Выхожу один я на дорогу");
-        for (Map.Entry<String, Integer> entry : lem.entrySet()) {
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
-        System.out.println(le);
-    }
+//    public static void main(String[] args) throws IOException {
+//        LemmaFinder lemmaFinder1 = LemmaFinder.getInstance();
+//        Map<String, Integer> lem = lemmaFinder1.collectLemmas("леопарды в горах алтая");
+//        Set<String> le = lemmaFinder1.getLemmaSet("Выхожу один я на дорогу");
+//        for (Map.Entry<String, Integer> entry : lem.entrySet()) {
+//            System.out.println(entry.getKey() + " " + entry.getValue());
+//        }
+//        System.out.println(le);
+//    }
 
     List<Site> sitesToSearch;
     String[] searchWordsNormalForms;
@@ -86,27 +83,23 @@ public class SearchServiceImpl implements SearchService {
         double maxRelevance = foundPages.get(0).getRelevance();
 
 
-//        List<FoundPage> searchResults = processPages(foundPages);
-//        return new SearchResponse(
-//                true,
-//                message + String.format(" Время поиска : %.3f сек.", (System.nanoTime() - searchStartTime)/1000000000.),
-//                searchResults.size(),
-//                searchResults
-//        );
+        List<FoundPage> searchResults = processPages(foundPages);
+        return new SearchResponse(
+                true,
+                message + String.format(" Время поиска : %.3f сек.", (System.nanoTime() - searchStartTime) / 1000000000.),
+                searchResults.size(),
+                searchResults
+        );
+    }
 
-
-           return null;
+    List<FoundPage> processPages(List<PageDTO> foundPages) {
+        List<FoundPage> result = new ArrayList<>();
+        for (PageDTO page : foundPages) {
+            Document content = Jsoup.parse(page.getContent());
+            result.add(new FoundPage(page.getPath(), content.title(), "snippet", page.getRelevance()));
         }
-
-//    List<FoundPage> processPages(List<PageDTO> foundPages) {
-//        List<FoundPage> result = new ArrayList<>();
-//        for (PageDTO page : foundPages) {
-//            Document content = Jsoup.parse(page.getContent());
-//            result.add(new FoundPage(page.getPath(), content.title(), snippet, page.getRelevance()));
-//        }
-//        return null;
-//    }
-
+        return null;
+    }
 
     boolean lemmasContainAnyWordNormalForm(List<String> wordNormalForms, List<String> lemmas) {
         List<String> lemmasWordIntersection = new ArrayList<String>(lemmas);

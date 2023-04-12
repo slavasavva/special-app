@@ -151,19 +151,17 @@ public class IndexingServiceImpl implements IndexingService {
         Long pageId = pageRepository.getPageIdByPath(path);
         Long siteId = siteRepository.GetSiteIdByUrl(getTopLevelUrl(url));
         String content = getHtmlFromUrl(url);
-        if (pageId == null){
-            addPage(siteId, path, 200, content);
-        }
-       else  {
+        if (pageId != null){
             List<Long> lemmasId = ratingRepository.getLemmasIgByPageId(pageId);
             for (Long lemmaId : lemmasId) {
                 lemmaRepository.deleteById(lemmaId);
             }
             pageRepository.deleteById(pageId);
             ratingRepository.deleteByPageId(pageId);
+        }
             Page page = addPage(siteId, path, 200, content);
             indexingPage.indexingPage(page);
-        }
+
         return new IndexingStatusResponse(true, null);
     }
 
