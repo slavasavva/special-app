@@ -9,7 +9,10 @@ import searchengine.repositories.PageRepository;
 import searchengine.repositories.SiteRepository;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringJoiner;
 import java.util.concurrent.RecursiveAction;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -29,7 +32,6 @@ public class WebSearchTask extends RecursiveAction {
     private IndexingService indexingService;
 
     private List<WebSearchTask> subTasks = new LinkedList<>();
-
 
     private Date date = new Date(System.currentTimeMillis());
 
@@ -60,10 +62,10 @@ public class WebSearchTask extends RecursiveAction {
         if (wrongLink(siteId, url)) {
             return;
         }
-       if (!url.startsWith(startUrl.replace("www.", "" ))&&
-      !url.startsWith(startUrl)) {
-           return;
-      }
+        if (!url.startsWith(startUrl.replace("www.", "")) &&
+                !url.startsWith(startUrl)) {
+            return;
+        }
         if (stop.get()) {
             System.out.println("(" + allPaths + ") stopping URL " + url);
             return;

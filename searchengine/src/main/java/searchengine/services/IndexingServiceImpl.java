@@ -41,7 +41,6 @@ public class IndexingServiceImpl implements IndexingService {
     private final AtomicBoolean stop = new AtomicBoolean();
 
     @Override
-
     public IndexingStatusResponse startIndexing() {
         if (indexing) {
             return new IndexingStatusResponse(false, "Индексация уже запущена");
@@ -74,12 +73,12 @@ public class IndexingServiceImpl implements IndexingService {
 
         } else if (pageRepository.countIndexedPage(siteId) == 0) {
             siteRepository.setType(url, StatusType.FAILED.toString());
-            siteRepository.setLastError(url, "Сайт недоступен длч индексации");
+            siteRepository.setLastError(url, "Сайт недоступен для индексации");
 //            siteRepository.setTypeAndLastError(url, StatusType.FAILED.toString(), "Сайт недоступен длч индексации");
         } else if (pageRepository.countIndexedPage(siteId) != 0 &&
                 pageRepository.countSuccessfulIndexedPage(siteId) / pageRepository.countIndexedPage(siteId) <
                         indexingSettings.getSiteIndexingSuccessfulPercentage()) {
-            siteRepository.setLastError(url, "Проиндексировано менее 70 % страниц сайта");
+            siteRepository.setLastError(url, "Проиндексировано менее 70% страниц сайта");
             siteRepository.setType(url, StatusType.FAILED.toString());
 //            siteRepository.setTypeAndLastError(url, StatusType.FAILED.toString(), "Проиндексировано менее 70 % страниц сайта");
         } else {
