@@ -49,23 +49,23 @@ public class SearchServiceImpl implements SearchService {
         String message = "";
         long searchStartTime = System.nanoTime();
 
-        if (request.getQuery() == null) {
-            return new SearchResponse(false, "Задан пустой поисковый запрос", 0, null);
+        if (request.getQuery() == null || request.getQuery().length() == 0) {
+            return new SearchResponse(false, "Задан пустой поисковый запрос");
         }
         if (searchWordsNormalForms.length == 0) {
-            return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса", 0, null);
+            return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса");
         }
 
         filteredLemmas = filterPopularLemmasOut(sitesToSearch,
                 List.of(searchWordsNormalForms), THRESHOLD);
 
         if (filteredLemmas.size() == 0) {
-            return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено", 0, null);
+            return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
         foundPages = findRelevantPages(filteredLemmas, sitesToSearch, request.getLimit(), request.getOffset());
 
         if (foundPages.size() == 0) {
-            return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено", 0, null);
+            return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
         sitesToSearch = getSitesToSearch(request.getSite());
         Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());

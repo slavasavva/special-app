@@ -6,7 +6,6 @@ import searchengine.dto.IndexingStatusResponse;
 import searchengine.dto.SearchRequest;
 import searchengine.dto.SearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
-import searchengine.exceptions.SearchException;
 import searchengine.services.IndexingService;
 import searchengine.services.IndexingServiceImpl;
 import searchengine.services.search.SearchService;
@@ -19,11 +18,12 @@ import java.io.IOException;
 public class ApiController {
     private final StatisticsService statisticsService;
     private final IndexingService indexingService;
-    private SearchService searchService;
+    private final SearchService searchService;
 
-    public ApiController(StatisticsService statisticsService, IndexingService indexService, IndexingServiceImpl indexingServiceImpl) {
+    public ApiController(StatisticsService statisticsService, IndexingService indexService, SearchService searchService ) {
         this.statisticsService = statisticsService;
         this.indexingService = indexService;
+        this.searchService = searchService;
     }
 
     @GetMapping("/statistics")
@@ -42,7 +42,6 @@ public class ApiController {
         IndexingStatusResponse status = indexingService.stopIndexing();
         return ResponseEntity.ok(status);
     }
-
 
     @PostMapping("/indexPage")
     public ResponseEntity<IndexingStatusResponse>

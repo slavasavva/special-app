@@ -18,6 +18,11 @@ public class SearchResponse {
     private int count;
     private List<FoundPage> data;
 
+    public SearchResponse(boolean result, String message) {
+        this.result = result;
+        this.message = message;
+    }
+
     @Override
     public String toString() {
         return "SearchResponse{" +
