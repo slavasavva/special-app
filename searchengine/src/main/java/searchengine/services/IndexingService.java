@@ -2,16 +2,10 @@ package searchengine.services;
 
 import searchengine.dto.IndexingStatusResponse;
 
-
-import java.io.IOException;
-
 public interface IndexingService {
-    IndexingStatusResponse startIndexing() throws IOException;
+    IndexingStatusResponse startIndexing();
 
     IndexingStatusResponse stopIndexing();
 
     IndexingStatusResponse indexPage(String url);
-
-
 }
-

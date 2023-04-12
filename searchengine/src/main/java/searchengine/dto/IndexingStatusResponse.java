@@ -1,20 +1,10 @@
 package searchengine.dto;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import javax.validation.constraints.NotEmpty;
 
+import lombok.Data;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class IndexingStatusResponse {
-    @NotEmpty
-    boolean result;
-    String error;
+    private final boolean result;
 
-    @Override
-    public String toString() {
-        return "{\"result\": " + this.result + ", \"error\": \"" + this.error + "\"}";
-    }
+    private final String error;
 }

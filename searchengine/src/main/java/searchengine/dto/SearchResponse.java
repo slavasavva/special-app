@@ -1,35 +1,23 @@
 package searchengine.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
 public class SearchResponse {
-    @NotEmpty
-    boolean result;
-    private String message;
-    private int count;
-    private List<FoundPage> data;
+    private boolean result;
 
-    public SearchResponse(boolean result, String message) {
+    private String error;
+
+    private int count = 0;
+
+    private List<FoundPage> data = null;
+
+    public SearchResponse(boolean result, String error) {
         this.result = result;
-        this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        return "SearchResponse{" +
-                "result=" + result +
-                ", message='" + message + '\'' +
-                ", count=" + count +
-                ", data=" + data +
-                '}';
+        this.error = error;
     }
 }

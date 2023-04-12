@@ -22,11 +22,17 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
     SiteRepository siteRepository;
+
     LemmaRepository lemmaRepository;
+
     PageRepository pageRepository;
+
     RatingRepository ratingRepository;
+
     StringBuilder stringBuilder;
+
     private static final double THRESHOLD = 0.97;
+
     LemmaFinder lemmaFinder;
 
     {
@@ -40,10 +46,11 @@ public class SearchServiceImpl implements SearchService {
     private final IndexingSettings indexingSettings;
 
     List<Site> sitesToSearch;
+
     String[] searchWordsNormalForms;
 
     @Override
-    public SearchResponse searchService(SearchRequest request){
+    public SearchResponse searchService(SearchRequest request) {
         List<PageDTO> foundPages;
         List<String> filteredLemmas;
         String message = "";
@@ -52,15 +59,14 @@ public class SearchServiceImpl implements SearchService {
         if (request.getQuery() == null || request.getQuery().length() == 0) {
             return new SearchResponse(false, "Задан пустой поисковый запрос");
         }
+
         Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());
         searchWordsNormalForms = (String[]) setRequestLemmas.toArray();
-
         if (searchWordsNormalForms.length == 0) {
             return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса");
         }
 
-        filteredLemmas = filterPopularLemmasOut(sitesToSearch,
-                List.of(searchWordsNormalForms), THRESHOLD);
+        filteredLemmas = filterPopularLemmasOut(sitesToSearch, List.of(searchWordsNormalForms), THRESHOLD);
 
         if (filteredLemmas.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
@@ -132,10 +138,11 @@ public class SearchServiceImpl implements SearchService {
             return indexingSettings.getSites();
         } else {
             ArrayList<Site> sites = new ArrayList<>();
-            for (Site site1 : indexingSettings.getSites())
+            for (Site site1 : indexingSettings.getSites()) {
                 if (site1.equals(site)) {
                     sites.add(site1);
                 }
+            }
             return sites;
         }
     }

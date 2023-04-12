@@ -7,22 +7,21 @@ import searchengine.dto.SearchRequest;
 import searchengine.dto.SearchResponse;
 import searchengine.dto.statistics.StatisticsResponse;
 import searchengine.services.IndexingService;
-import searchengine.services.IndexingServiceImpl;
-import searchengine.services.search.SearchService;
 import searchengine.services.StatisticsService;
-
-import java.io.IOException;
+import searchengine.services.search.SearchService;
 
 @RestController
 @RequestMapping("/api")
 public class ApiController {
     private final StatisticsService statisticsService;
+
     private final IndexingService indexingService;
+
     private final SearchService searchService;
 
-    public ApiController(StatisticsService statisticsService, IndexingService indexService, SearchService searchService ) {
+    public ApiController(StatisticsService statisticsService, IndexingService indexingService, SearchService searchService) {
         this.statisticsService = statisticsService;
-        this.indexingService = indexService;
+        this.indexingService = indexingService;
         this.searchService = searchService;
     }
 
@@ -32,30 +31,25 @@ public class ApiController {
     }
 
     @GetMapping("/startIndexing")
-    public ResponseEntity<IndexingStatusResponse> startIndexing() throws IOException {
-        IndexingStatusResponse status = indexingService.startIndexing();
-        return ResponseEntity.ok(status);
+    public ResponseEntity<IndexingStatusResponse> startIndexing() {
+        return ResponseEntity.ok(indexingService.startIndexing());
     }
 
     @GetMapping("/stopIndexing")
     public ResponseEntity<IndexingStatusResponse> stopIndexing() {
-        IndexingStatusResponse status = indexingService.stopIndexing();
-        return ResponseEntity.ok(status);
+        return ResponseEntity.ok(indexingService.stopIndexing());
     }
 
     @PostMapping("/indexPage")
-    public ResponseEntity<IndexingStatusResponse>
-    indexPage(@RequestParam String url) throws IOException {
-        IndexingStatusResponse status = indexingService.indexPage(url);
-        return ResponseEntity.ok(status);
+    public ResponseEntity<IndexingStatusResponse> indexPage(@RequestParam String url) {
+        return ResponseEntity.ok(indexingService.indexPage(url));
     }
 
     @GetMapping("/search")
     public ResponseEntity<SearchResponse> searchService(@RequestParam(name = "query") String query,
-                                                 @RequestParam(name = "site", required = false) String site,
-                                                 @RequestParam(name = "offset", defaultValue = "0") int offset,
-                                                 @RequestParam(name = "limit", defaultValue = "20") int limit) {
-
+                                                        @RequestParam(name = "site", required = false) String site,
+                                                        @RequestParam(name = "offset", defaultValue = "0") int offset,
+                                                        @RequestParam(name = "limit", defaultValue = "20") int limit) {
         SearchRequest request = new SearchRequest(query, site, offset, limit);
         return ResponseEntity.ok(searchService.searchService(request));
     }
