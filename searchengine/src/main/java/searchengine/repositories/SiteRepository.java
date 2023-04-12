@@ -19,7 +19,7 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     Site findSiteByUrl(String url);
 
     @Query(value = "SELECT id from site where url = :url", nativeQuery = true)
-    Long GetSiteIdByUrl(String url);
+    Long getSiteIdByUrl(String url);
 
     @Modifying
     @Query(value = "delete from site where url = :url", nativeQuery = true)

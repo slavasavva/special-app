@@ -46,7 +46,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
                     "s.name as siteName, " +
                     "p.path as path, " +
                     "p.content as content, " +
-                    "sum(r.rank) over (partition by p.path) as relevance " +
+                    "sum(r.rating) over (partition by p.path) as relevance " +
                     "from page p " +
                     "join rating r on p.id = r.page_id " +
                     "join lemma l on l.id = r.lemma_id " +

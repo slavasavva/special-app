@@ -22,7 +22,7 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     @Query(
             value = "select r.page_id " +
                     "from rating r " +
-                    "join lemma l on l.id = i.lemma_id " +
+                    "join lemma l on l.id = r.lemma_id " +
                     "where l.site_id in :siteIds " +
                     "and l.lemma = :lemma " +
                     "and r.page_id in (:pageIds)",

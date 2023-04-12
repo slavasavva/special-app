@@ -6,7 +6,6 @@ import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import searchengine.config.IndexingSettings;
 import searchengine.dto.IndexingStatusResponse;
-import searchengine.exceptions.IndexingStatusException;
 import searchengine.model.Page;
 import searchengine.model.Site;
 import searchengine.model.StatusType;
@@ -148,7 +147,7 @@ public class IndexingServiceImpl implements IndexingService {
         }
         String path = deleteTopLevelUrl(url);
         Long pageId = pageRepository.getPageIdByPath(path);
-        Long siteId = siteRepository.GetSiteIdByUrl(getTopLevelUrl(url));
+        Long siteId = siteRepository.getSiteIdByUrl(getTopLevelUrl(url));
         String content = getHtmlFromUrl(url);
         if (pageId != null){
             List<Long> lemmasId = ratingRepository.getLemmasIgByPageId(pageId);

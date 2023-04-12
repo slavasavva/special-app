@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import searchengine.config.IndexingSettings;
 import searchengine.config.Site;
 import searchengine.dto.*;
-import searchengine.exceptions.SearchException;
 import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
 import searchengine.repositories.RatingRepository;
@@ -21,19 +20,19 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class SearchServiceImpl implements SearchService {
-    SiteRepository siteRepository;
+    private final SiteRepository siteRepository;
 
-    LemmaRepository lemmaRepository;
+    private final LemmaRepository lemmaRepository;
 
-    PageRepository pageRepository;
+    private final PageRepository pageRepository;
 
-    RatingRepository ratingRepository;
+    private final RatingRepository ratingRepository;
 
-    StringBuilder stringBuilder;
+    private SnippetBuilder stringBuilder = new SnippetBuilder();
 
     private static final double THRESHOLD = 0.97;
 
-    LemmaFinder lemmaFinder;
+    private LemmaFinder lemmaFinder;
 
     {
         try {
@@ -64,6 +63,7 @@ public class SearchServiceImpl implements SearchService {
         if (searchWordsNormalForms.length == 0) {
             return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса");
         }
+        sitesToSearch = getSitesToSearch(request.getSite());
 
         filteredLemmas = filterPopularLemmasOut(sitesToSearch, List.of(searchWordsNormalForms), THRESHOLD);
 
@@ -75,7 +75,6 @@ public class SearchServiceImpl implements SearchService {
         if (foundPages.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
-        sitesToSearch = getSitesToSearch(request.getSite());
 
         double maxRelevance = foundPages.get(0).getRelevance();
 
@@ -92,7 +91,7 @@ public class SearchServiceImpl implements SearchService {
         List<FoundPage> result = new ArrayList<>();
         for (PageDTO page : foundPages) {
             Document content = Jsoup.parse(page.getContent());
-            result.add(new FoundPage(page.getPath(), content.title(), stringBuilder.getSnippet(content.title(), searchQuery), page.getRelevance()));
+            result.add(new FoundPage(page.getPath(), content.title(), stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance()));
         }
         return result;
     }
@@ -149,7 +148,7 @@ public class SearchServiceImpl implements SearchService {
     private List<Long> getSitesId() {
         ArrayList<Long> siteIds = new ArrayList<>();
         for (Site site : sitesToSearch) {
-            siteIds.add(siteRepository.GetSiteIdByUrl(site.getUrl()));
+            siteIds.add(siteRepository.getSiteIdByUrl(site.getUrl()));
         }
         return siteIds;
     }

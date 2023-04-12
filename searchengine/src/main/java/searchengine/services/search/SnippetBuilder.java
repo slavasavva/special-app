@@ -1,14 +1,25 @@
 package searchengine.services.search;
 
 import org.apache.lucene.morphology.LuceneMorphology;
+import org.apache.lucene.morphology.english.EnglishLuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 
 import java.io.IOException;
 import java.util.*;
 
-public class StringBuilder {
-    private LuceneMorphology russianLuceneMorph;
-    private LuceneMorphology englishLuceneMorph;
+public class SnippetBuilder {
+    LuceneMorphology russianLuceneMorph;
+    LuceneMorphology englishLuceneMorph;
+    {
+        try {
+            russianLuceneMorph = new RussianLuceneMorphology();
+            englishLuceneMorph = new EnglishLuceneMorphology();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
 
     public String getSnippet(String text, List<String> searchQuery){
         List<String> queryLocalCopy = new ArrayList<>(searchQuery);
