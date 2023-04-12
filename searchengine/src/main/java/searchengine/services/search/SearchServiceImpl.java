@@ -59,9 +59,8 @@ public class SearchServiceImpl implements SearchService {
         if (request.getQuery() == null || request.getQuery().length() == 0) {
             return new SearchResponse(false, "Задан пустой поисковый запрос");
         }
-
-        Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());
-        searchWordsNormalForms = (String[]) setRequestLemmas.toArray();
+//        Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());
+        searchWordsNormalForms = lemmaFinder.getLemmaSet(request.getQuery()).toArray(new String[0]);
         if (searchWordsNormalForms.length == 0) {
             return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса");
         }
