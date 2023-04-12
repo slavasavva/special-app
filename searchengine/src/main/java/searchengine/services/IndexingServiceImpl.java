@@ -43,7 +43,7 @@ public class IndexingServiceImpl implements IndexingService {
 
     @Override
 
-    public IndexingStatusResponse startIndexing() throws IndexingStatusException {
+    public IndexingStatusResponse startIndexing() {
         if (indexing) {
             return new IndexingStatusResponse(false, "Индексация уже запущена");
         }
@@ -130,10 +130,9 @@ public class IndexingServiceImpl implements IndexingService {
     }
 
     @Override
-    public IndexingStatusResponse stopIndexing() throws IndexingStatusException {
+    public IndexingStatusResponse stopIndexing()  {
         if (!indexing) {
             return new IndexingStatusResponse(false, "Индексация не запущена");
-//            throw new IndexingStatusException("Индексация не запущена");
         }
         stop.set(true);
 //        IndexingStatusResponse stopIndexingResponse = new IndexingStatusResponse();

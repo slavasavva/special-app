@@ -31,7 +31,6 @@ public class StringBuilder {
                 iterator.remove();
             }
         }
-
         return constructSnippetWithHighlight(foundWordsIndexes, new ArrayList<>(words));
     }
 

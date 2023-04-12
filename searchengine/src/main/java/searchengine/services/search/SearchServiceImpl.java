@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import searchengine.config.IndexingSettings;
 import searchengine.config.Site;
 import searchengine.dto.*;
-import searchengine.exceptions.IndexingStatusException;
 import searchengine.exceptions.SearchException;
 import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
@@ -30,7 +29,6 @@ public class SearchServiceImpl implements SearchService {
     private static final double THRESHOLD = 0.97;
     LemmaFinder lemmaFinder;
 
-
     {
         try {
             lemmaFinder = LemmaFinder.getInstance();
@@ -45,7 +43,7 @@ public class SearchServiceImpl implements SearchService {
     String[] searchWordsNormalForms;
 
     @Override
-    public SearchResponse searchService(SearchRequest request) throws IndexingStatusException {
+    public SearchResponse searchService(SearchRequest request){
         List<PageDTO> foundPages;
         List<String> filteredLemmas;
         String message = "";
@@ -55,19 +53,19 @@ public class SearchServiceImpl implements SearchService {
             return new SearchResponse(false, "Задан пустой поисковый запрос", 0, null);
         }
         if (searchWordsNormalForms.length == 0) {
-            throw new SearchException("Не удалось выделить леммы для поиска из запроса");
+            return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса", 0, null);
         }
 
         filteredLemmas = filterPopularLemmasOut(sitesToSearch,
                 List.of(searchWordsNormalForms), THRESHOLD);
 
         if (filteredLemmas.size() == 0) {
-            throw new SearchException("По запросу '" + request.getQuery() + "' ничего не найдено");
+            return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено", 0, null);
         }
         foundPages = findRelevantPages(filteredLemmas, sitesToSearch, request.getLimit(), request.getOffset());
 
         if (foundPages.size() == 0) {
-            throw new SearchException("По запросу '" + request.getQuery() + "' ничего не найдено");
+            return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено", 0, null);
         }
         sitesToSearch = getSitesToSearch(request.getSite());
         Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());

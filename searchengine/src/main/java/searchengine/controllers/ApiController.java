@@ -43,15 +43,6 @@ public class ApiController {
         return ResponseEntity.ok(status);
     }
 
-//    @PostMapping("/indexPage")
-//    public ResponseEntity<IndexingStatusResponse>
-//    indexPage(@RequestParam String url) throws IOException {
-//        IndexingStatusResponse status = indexingService.indexOnePage(url);
-//        if (indexingService.isIndexing()) {
-//            return ResponseEntity.ok(status);
-//        }
-//        throw new UnknownIndexingStatusException("Неизвестная ошибка индексирования");
-//    }
 
     @PostMapping("/indexPage")
     public ResponseEntity<IndexingStatusResponse>
@@ -60,14 +51,11 @@ public class ApiController {
         return ResponseEntity.ok(status);
     }
 
-    @GetMapping("/searchengine/services/search")
+    @GetMapping("/search")
     public ResponseEntity<SearchResponse> searchService(@RequestParam(name = "query") String query,
                                                  @RequestParam(name = "site", required = false) String site,
                                                  @RequestParam(name = "offset", defaultValue = "0") int offset,
-                                                 @RequestParam(name = "limit", defaultValue = "20") int limit) throws IOException {
-        if (query.isEmpty()) {
-            throw new SearchException("Пустой поисковый запрос");
-       }
+                                                 @RequestParam(name = "limit", defaultValue = "20") int limit) {
 
         SearchRequest request = new SearchRequest(query, site, offset, limit);
         return ResponseEntity.ok(searchService.searchService(request));
