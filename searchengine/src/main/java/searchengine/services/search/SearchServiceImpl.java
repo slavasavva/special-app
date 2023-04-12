@@ -89,7 +89,7 @@ public class SearchServiceImpl implements SearchService {
             Document content = Jsoup.parse(page.getContent());
             result.add(new FoundPage(page.getPath(), content.title(), stringBuilder.getSnippet(content.title(), searchQuery), page.getRelevance()));
         }
-        return null;
+        return result;
     }
 
     @Transactional
