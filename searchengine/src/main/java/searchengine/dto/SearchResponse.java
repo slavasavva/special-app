@@ -13,8 +13,18 @@ import java.util.List;
 @NoArgsConstructor
 public class SearchResponse {
     @NotEmpty
-    private boolean result;
+    boolean result;
     private String message;
     private int count;
     private List<FoundPage> data;
+
+    @Override
+    public String toString() {
+        return "SearchResponse{" +
+                "result=" + result +
+                ", message='" + message + '\'' +
+                ", count=" + count +
+                ", data=" + data +
+                '}';
+    }
 }

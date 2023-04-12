@@ -1,7 +1,7 @@
 package searchengine.services;
 
 import searchengine.dto.IndexingStatusResponse;
-import searchengine.dto.SearchResponse;
+
 
 import java.io.IOException;
 

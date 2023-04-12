@@ -7,7 +7,7 @@
 //
 //public class SnippetBuilder {
 //
-//    public static String getSnippetFromPage(MorphologyService ms, String text, List<String> searchQuery) {
+//    public static String getSnippetFromPage(String text, List<String> searchQuery) {
 //        List<String> queryLocalCopy = new ArrayList<>(searchQuery);
 //        List<String> words = List.of(text.split("\\b"));
 //        ListIterator<String> iterator;
