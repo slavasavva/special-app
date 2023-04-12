@@ -1,6 +1,8 @@
 package searchengine.services.search;
 
 import lombok.RequiredArgsConstructor;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import searchengine.config.IndexingSettings;
@@ -81,34 +83,31 @@ public class SearchServiceImpl implements SearchService {
         sitesToSearch = getSitesToSearch(request.getSite());
         Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());
         searchWordsNormalForms = (String[]) setRequestLemmas.toArray();
-        String finalQuery = request.getQuery();
-        if (filteredLemmas.size() < searchWordsNormalForms.length) {
-//            finalQuery = correctQuery(filteredLemmas, finalQuery);
+        double maxRelevance = foundPages.get(0).getRelevance();
+
+
+//        List<FoundPage> searchResults = processPages(foundPages);
+//        return new SearchResponse(
+//                true,
+//                message + String.format(" Время поиска : %.3f сек.", (System.nanoTime() - searchStartTime)/1000000000.),
+//                searchResults.size(),
+//                searchResults
+//        );
+
+
+           return null;
         }
 
-
-        return null;
-    }
-
-//    String correctQuery(List<String> lemmas, String originalQuery) {
-//        MorphologyService ms = commonContext.getMorphologyService();
-//
-//        String[] splitQuery = ms.splitStringToWords(originalQuery);
-//        List<String> queryList = new ArrayList<>(List.of(splitQuery));
-//        List<String> wordNormalForms;
-//
-//        for (String word : splitQuery) {
-//            wordNormalForms = ms.getNormalFormOfAWord(word.toLowerCase(Locale.ROOT));
-//            if (wordNormalForms.isEmpty()) {
-//                queryList.remove(word);
-//                continue;
-//            }
-//            if (!lemmasContainAnyWordNormalForm(wordNormalForms, lemmas)) {
-//                queryList.remove(word);
-//            }
+//    List<FoundPage> processPages(List<PageDTO> foundPages) {
+//        List<FoundPage> result = new ArrayList<>();
+//        for (PageDTO page : foundPages) {
+//            Document content = Jsoup.parse(page.getContent());
+//            result.add(new FoundPage(page.getPath(), content.title(), snippet, page.getRelevance()));
 //        }
-//        return String.join(" ", queryList);
+//        return null;
 //    }
+
+
     boolean lemmasContainAnyWordNormalForm(List<String> wordNormalForms, List<String> lemmas) {
         List<String> lemmasWordIntersection = new ArrayList<String>(lemmas);
         lemmasWordIntersection.retainAll(wordNormalForms);
@@ -170,6 +169,32 @@ public class SearchServiceImpl implements SearchService {
         }
         return siteIds;
     }
+
+
+    //        String finalQuery = request.getQuery();
+//        if (filteredLemmas.size() < searchWordsNormalForms.length) {
+//            finalQuery = correctQuery(filteredLemmas, finalQuery);
+//        }
+
+//    String correctQuery(List<String> lemmas, String originalQuery) {
+//        MorphologyService ms = commonContext.getMorphologyService();
+//
+//        String[] splitQuery = ms.splitStringToWords(originalQuery);
+//        List<String> queryList = new ArrayList<>(List.of(splitQuery));
+//        List<String> wordNormalForms;
+//
+//        for (String word : splitQuery) {
+//            wordNormalForms = ms.getNormalFormOfAWord(word.toLowerCase(Locale.ROOT));
+//            if (wordNormalForms.isEmpty()) {
+//                queryList.remove(word);
+//                continue;
+//            }
+//            if (!lemmasContainAnyWordNormalForm(wordNormalForms, lemmas)) {
+//                queryList.remove(word);
+//            }
+//        }
+//        return String.join(" ", queryList);
+//    }
 
 //    private TreeMap<Long, String> filterPopularLemmas(Set<String> text) {
 //        TreeMap<Long, String> lemmas = new TreeMap<>();
