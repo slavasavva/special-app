@@ -56,7 +56,7 @@ public class WebSearchTask extends RecursiveAction {
     protected void compute() {
         siteRepository.statusTime(url, formatter.format(date));
         int allPaths = pageRepository.findAll().size();
-        if (allPaths > 20) {
+        if (allPaths > 5) {
             return;
         }
         if (wrongLink(siteId, url)) {
@@ -84,9 +84,10 @@ public class WebSearchTask extends RecursiveAction {
                 if (!wrongLink(siteId, link)) {
                     WebSearchTask webSearchTask = new WebSearchTask(link, webSearchTaskContext);
                     webSearchTask.fork();
-                    if (subTasks.size() < 10) {
-                        subTasks.add(webSearchTask);
-                    }
+                    subTasks.add(webSearchTask);
+//                    if (subTasks.size() < 10) {
+//                        subTasks.add(webSearchTask);
+//                    }
                 }
             }
             for (WebSearchTask webSearchTask : subTasks) {
@@ -126,8 +127,11 @@ public class WebSearchTask extends RecursiveAction {
         synchronized (pageRepository) {
             if (!wrongLink(siteId, path)) {
                 try {
+//                    Page page = indexingService.addPage(siteId, deleteTopLevelUrl(path), code, content);
                     Page page = createPage(siteId, deleteTopLevelUrl(path), code, content);
-                    indexingPage.indexingPage(page);
+                    if (page.getCode() == 200) {
+                        indexingPage.indexingPage(page);
+                    }
                 } catch (Exception e) {
                     System.err.println(e);
                     e.printStackTrace();

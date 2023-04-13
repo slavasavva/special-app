@@ -62,7 +62,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             item.setPages(pages);
             item.setLemmas(lemmas);
 //            item.setError(errors[i % 3]);
-            item.setError(modelSite.getLastError());
+
+            item.setError(modelSite.getLastError()==null ? "" : modelSite.getLastError());
             item.setStatusTime(System.currentTimeMillis() -
                     (random.nextInt(10_000)));
 //            item.setStatusTime(Long.parseLong(formatter.format(modelSite.getStatusTime())));

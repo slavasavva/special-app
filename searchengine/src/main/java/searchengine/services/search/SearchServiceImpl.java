@@ -91,7 +91,7 @@ public class SearchServiceImpl implements SearchService {
         List<FoundPage> result = new ArrayList<>();
         for (PageDTO page : foundPages) {
             Document content = Jsoup.parse(page.getContent());
-            result.add(new FoundPage("site", "siteName", page.getPath(), content.title(),
+            result.add(new FoundPage(page.getSiteUrl(), page.getSiteName(), page.getPath(), content.title(),
                     stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance()));
         }
         return result;

@@ -117,11 +117,11 @@ public class IndexingServiceImpl implements IndexingService {
         return siteRepository.save(site).getId();
     }
 
-    private Page addPage(Long siteId, String path, int code, String content) {
+    public Page addPage(Long siteId, String path, int code, String content) {
         Page page = new Page();
         page.setSiteId(siteId);
         page.setPath(path);
-        page.setCode(200);
+        page.setCode(code);
         page.setContent(content);
         pageRepository.save(page);
         return page;
