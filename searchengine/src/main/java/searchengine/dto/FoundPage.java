@@ -4,7 +4,11 @@ import lombok.Data;
 
 @Data
 public class FoundPage {
-    private final String url;
+    private final String site;
+
+    private final String siteName;
+
+    private final String uri;
 
     private final String title;
 

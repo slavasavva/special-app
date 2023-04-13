@@ -91,7 +91,8 @@ public class SearchServiceImpl implements SearchService {
         List<FoundPage> result = new ArrayList<>();
         for (PageDTO page : foundPages) {
             Document content = Jsoup.parse(page.getContent());
-            result.add(new FoundPage(page.getPath(), content.title(), stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance()));
+            result.add(new FoundPage("site", "siteName", page.getPath(), content.title(),
+                    stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance()));
         }
         return result;
     }
@@ -105,14 +106,15 @@ public class SearchServiceImpl implements SearchService {
     }
 
     List<PageDTO> findRelevantPages(List<String> filteredLemmas, List<Site> sitesToSearch, int limit, int offset) {
+        List<String> filteredLemmasCopy = new ArrayList(filteredLemmas);
         List<PageDTO> foundPages;
         do {
-            foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), limit, offset);
+            foundPages = getSortedRelevantPageDTOs(filteredLemmasCopy, getSitesId(), limit, offset);
             if (foundPages.size() > 0) {
                 break;
             }
-            filteredLemmas.remove(0);
-        } while (filteredLemmas.size() > 0);
+            filteredLemmasCopy.remove(0);
+        } while (filteredLemmasCopy.size() > 0);
 
         return foundPages;
     }

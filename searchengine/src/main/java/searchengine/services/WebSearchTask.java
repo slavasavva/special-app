@@ -96,6 +96,7 @@ public class WebSearchTask extends RecursiveAction {
             processPage(siteId, url, 500, e.getMessage());
             siteRepository.statusTime(url, formatter.format(date));
             System.err.println("Exception for '" + url + "': " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -129,15 +130,20 @@ public class WebSearchTask extends RecursiveAction {
                     indexingPage.indexingPage(page);
                 } catch (Exception e) {
                     System.err.println(e);
+                    e.printStackTrace();
                 }
             }
         }
     }
 
     private String deleteTopLevelUrl(String url) {
+        if (url.equals("")) {
+            return url;
+        }
         String[] splitSite = url.split("//|/");
         return url.replace((splitSite[0] + "//" + splitSite[1]), "");
     }
+
 
     public Page createPage(Long siteId, String path, int code, String content) {
         Page page = new Page();
