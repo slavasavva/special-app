@@ -26,7 +26,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     @Modifying
     @Query(value = "DELETE from page WHERE id = :Id", nativeQuery = true)
     @Transactional
-    void deleteById(Long Id);
+    void deletePageById(Long Id);
 
     @Query(value = "SELECT count(id) FROM search_engine.page where site_id = :siteId", nativeQuery = true)
     int countIndexedPage(Long siteId);

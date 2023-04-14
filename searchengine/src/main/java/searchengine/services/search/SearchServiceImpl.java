@@ -28,7 +28,7 @@ public class SearchServiceImpl implements SearchService {
 
     private final RatingRepository ratingRepository;
 
-    private SnippetBuilder stringBuilder = new SnippetBuilder();
+    private MakeSnippet stringBuilder = new MakeSnippet();
 
     private static final double THRESHOLD = 0.97;
 
@@ -78,21 +78,23 @@ public class SearchServiceImpl implements SearchService {
 
         double maxRelevance = foundPages.get(0).getRelevance();
 
-        List<FoundPage> searchResults = processPages(foundPages, filteredLemmas);
+        List<FoundPage> searchResults = processPages(foundPages, filteredLemmas, maxRelevance);
         return new SearchResponse(
                 true,
-                message + String.format(" Время поиска : %.3f сек.", (System.nanoTime() - searchStartTime) / 1000000000.),
+                message
+//                        + String.format(" Время поиска : %.3f сек.", (System.nanoTime() - searchStartTime) / 1000000000.)
+                ,
                 searchResults.size(),
                 searchResults
         );
     }
 
-    List<FoundPage> processPages(List<PageDTO> foundPages, List<String> searchQuery) {
+    List<FoundPage> processPages(List<PageDTO> foundPages, List<String> searchQuery, double maxRelevance) {
         List<FoundPage> result = new ArrayList<>();
         for (PageDTO page : foundPages) {
             Document content = Jsoup.parse(page.getContent());
             result.add(new FoundPage(page.getSiteUrl(), page.getSiteName(), page.getPath(), content.title(),
-                    stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance()));
+                    stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance()/maxRelevance));
         }
         return result;
     }

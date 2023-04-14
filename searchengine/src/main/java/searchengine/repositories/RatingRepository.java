@@ -8,11 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 import searchengine.model.Rating;
 
 import java.util.List;
+
 @Repository
 public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     @Query(value = "SELECT lemma_id from rating WHERE page_id = :pageId", nativeQuery = true)
     List<Long> getLemmasIdByPageId(Long pageId);
+
     @Modifying
     @Query(value = "DELETE from rating WHERE page_id = :pageId", nativeQuery = true)
     @Transactional
@@ -20,7 +22,10 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
 
     @Modifying
     @Query(value = "DELETE from rating r" +
-            "join lemma l on l.id = r.lemma_id  WHERE site_id = :siteId", nativeQuery = true)
+            "join page p on r.page_id = p.id " +
+            "join lemma l on l.id = r.lemma_id" +
+            "join site s on s.id = p.site_id  + WHERE p.site_id = :siteId" +
+            "and p.id = r.id", nativeQuery = true)
     @Transactional
     void deleteBySiteId(Long siteId);
 

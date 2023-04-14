@@ -111,7 +111,7 @@ public class WebSearchTask extends RecursiveAction {
     }
 
     private boolean wrongLink(Long siteId, String link) {
-        int sitePaths = pageRepository.findBySiteIdAndPath(siteId, deleteTopLevelUrl(link)).size();
+        int sitePaths = pageRepository.findBySiteIdAndPath(siteId, getPathFromUrl(link)).size();
         boolean wrongLink = sitePaths > 0
                 || link.contains("#")
                 || link.endsWith("doc")
@@ -128,7 +128,7 @@ public class WebSearchTask extends RecursiveAction {
             if (!wrongLink(siteId, path)) {
                 try {
 //                    Page page = indexingService.addPage(siteId, deleteTopLevelUrl(path), code, content);
-                    Page page = createPage(siteId, deleteTopLevelUrl(path), code, content);
+                    Page page = createPage(siteId, getPathFromUrl(path), code, content);
                     if (page.getCode() == 200) {
                         indexingPage.indexingPage(page);
                     }
@@ -140,10 +140,10 @@ public class WebSearchTask extends RecursiveAction {
         }
     }
 
-    private String deleteTopLevelUrl(String url) {
-        if (url.equals("")) {
-            return url;
-        }
+    private String getPathFromUrl(String url) {
+//        if (url.equals("")) {
+//            return url;
+//        }
         String[] splitSite = url.split("//|/");
         return url.replace((splitSite[0] + "//" + splitSite[1]), "");
     }

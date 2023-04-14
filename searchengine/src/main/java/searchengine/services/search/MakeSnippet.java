@@ -7,7 +7,7 @@ import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import java.io.IOException;
 import java.util.*;
 
-public class SnippetBuilder {
+public class MakeSnippet {
     LuceneMorphology russianLuceneMorph;
     LuceneMorphology englishLuceneMorph;
 

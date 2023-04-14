@@ -57,46 +57,41 @@ public class IndexingServiceImpl implements IndexingService {
         if (oldSiteId != null) {
             deletePageBySiteId(oldSiteId);
             deleteLemmasBySiteId(oldSiteId);
-//            deleteRatingBySiteId(oldSiteId);
+            deleteRatingBySiteId(oldSiteId);
         }
         Long siteId = addSite(configSite.getUrl(), configSite.getName());
         WebSearchTaskContext webSearchTaskContext = new WebSearchTaskContext(url, siteId,
                 siteRepository, pageRepository, indexingPage, stop);
         new ForkJoinPool().invoke(new WebSearchTask(url, webSearchTaskContext));
-        setSiteStatusType(url, siteId);
-        done();
+//        setSiteStatusType(url, siteId);
+        done(url, siteId);
     }
 
     private void setSiteStatusType(String url, Long siteId) {
         if (stop.get()) {
             siteRepository.setType(url, StatusType.FAILED.toString());
             siteRepository.setLastError(url, "Индексация прервана пользователем");
-//            siteRepository.setTypeAndLastError(url, StatusType.FAILED.toString(), "Индексация прервана пользователем");
-
-        } else if (pageRepository.countIndexedPage(siteId) == 0) {
+        } else if (pageRepository.countIndexedPage(siteId) == 0 && !indexing) {
             siteRepository.setType(url, StatusType.FAILED.toString());
             siteRepository.setLastError(url, "Сайт недоступен для индексации");
-//            siteRepository.setTypeAndLastError(url, StatusType.FAILED.toString(), "Сайт недоступен длч индексации");
-        } else if (pageRepository.countIndexedPage(siteId) != 0 &&
+        } else if (pageRepository.countIndexedPage(siteId) != 0 && !indexing &&
                 pageRepository.countSuccessfulIndexedPage(siteId) / pageRepository.countIndexedPage(siteId) <
                         indexingSettings.getSiteIndexingSuccessfulPercentage()) {
             siteRepository.setLastError(url, "Проиндексировано менее 70% страниц сайта");
             siteRepository.setType(url, StatusType.FAILED.toString());
-//            siteRepository.setTypeAndLastError(url, StatusType.FAILED.toString(), "Проиндексировано менее 70 % страниц сайта");
-        } else {
+        } else if (!indexing) {
             siteRepository.setType(url, StatusType.INDEXED.toString());
         }
     }
 
-    private synchronized void done() {
+    private synchronized void done(String url, Long siteId) {
         threadCount++;
-
         if (threadCount == indexingSettings.getSites().size()) {
             indexing = false;
             threadCount = 0;
             stop.set(false);
             System.out.println("done");
-
+            setSiteStatusType(url, siteId);
         }
     }
 
@@ -117,9 +112,10 @@ public class IndexingServiceImpl implements IndexingService {
         lemmaRepository.deleteBySiteId(siteId);
     }
 
-//    private void deleteRatingBySiteId(Long siteId) {
+    private void deleteRatingBySiteId(Long siteId) {
 //        ratingRepository.deleteBySiteId(siteId);
-//    }
+    }
+
     private Long addSite(String url, String name) {
         Site site = new Site();
         site.setType(StatusType.INDEXING);
@@ -139,13 +135,11 @@ public class IndexingServiceImpl implements IndexingService {
     }
 
     @Override
-    public IndexingStatusResponse stopIndexing()  {
+    public IndexingStatusResponse stopIndexing() {
         if (!indexing) {
             return new IndexingStatusResponse(false, "Индексация не запущена");
         }
         stop.set(true);
-//        IndexingStatusResponse stopIndexingResponse = new IndexingStatusResponse();
-//        stopIndexingResponse.setResult(true);
         return new IndexingStatusResponse(true, null);
     }
 
@@ -155,20 +149,21 @@ public class IndexingServiceImpl implements IndexingService {
             return new IndexingStatusResponse(false, "Данная страница находится за пределами сайтов," +
                     " указанных в конфигурационном файле");
         }
-        String path = deleteTopLevelUrl(url);
+        String path = getPathFromUrl(url);
         Long pageId = pageRepository.getPageIdByPath(path);
-        Long siteId = siteRepository.getSiteIdByUrl(getTopLevelUrl(url));
+        Long siteId = siteRepository.getSiteIdByUrl(getSiteUrlFromPathUrl(url));
         String content = getHtmlFromUrl(url);
-        if (pageId != null){
+        if (pageId != null) {
             List<Long> lemmasId = ratingRepository.getLemmasIdByPageId(pageId);
             for (Long lemmaId : lemmasId) {
                 lemmaRepository.deleteById(lemmaId);
             }
-            pageRepository.deleteById(pageId);
+            pageRepository.deletePageById(pageId);
+//            lemmaRepository.deleteLemmaByPageId(pageId);
             ratingRepository.deleteByPageId(pageId);
         }
-            Page page = addPage(siteId, path, 200, content);
-            indexingPage.indexingPage(page);
+        Page page = addPage(siteId, path, 200, content);
+        indexingPage.indexingPage(page);
 
         return new IndexingStatusResponse(true, null);
     }
@@ -191,12 +186,12 @@ public class IndexingServiceImpl implements IndexingService {
         return false;
     }
 
-    public String deleteTopLevelUrl(String url) {
+    public String getPathFromUrl(String url) {
         String[] splitSite = url.split("//|/");
         return url.replace((splitSite[0] + "//" + splitSite[1]), "");
     }
 
-    public String getTopLevelUrl(String url) {
+    public String getSiteUrlFromPathUrl(String url) {
         String[] splitSite = url.split("//|/");
         return splitSite[0] + "//" + splitSite[1];
     }

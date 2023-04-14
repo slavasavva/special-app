@@ -31,9 +31,10 @@ public interface LemmaRepository extends JpaRepository<Lemma, Long> {
     void setFrequencyByLemmaAndSiteId(String lemma, Long siteId);
 
     @Modifying
-    @Query(value = "delete from lemma where id = :Id", nativeQuery = true)
+    @Query(value = "delete from lemma l join rating r on l.id = r.lemma_id" +
+            "join page p on r.pageId = p.id where p.id = :pageId and l.id = p.id", nativeQuery = true)
     @Transactional
-    void deleteById(Long Id);
+    void deleteLemmaByPageId(Long pageId);
 
     @Modifying
     @Query(value = "delete from lemma where site_id = :siteId", nativeQuery = true)

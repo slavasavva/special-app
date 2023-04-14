@@ -43,7 +43,7 @@ public class IndexingPageImpl implements IndexingPage {
                 }
             }
         }
-    }
+   }
 
     static String htmlCleaningTag(String html) {
         return Jsoup.clean(html, Whitelist.none());
