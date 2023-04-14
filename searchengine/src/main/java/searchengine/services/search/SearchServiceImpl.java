@@ -138,8 +138,9 @@ public class SearchServiceImpl implements SearchService {
             return indexingSettings.getSites();
         } else {
             ArrayList<Site> sites = new ArrayList<>();
+
             for (Site site1 : indexingSettings.getSites()) {
-                if (site1.equals(site)) {
+                if (site1.getUrl().equals(site)) {
                     sites.add(site1);
                 }
             }

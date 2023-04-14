@@ -56,6 +56,8 @@ public class IndexingServiceImpl implements IndexingService {
         deleteSiteByUrl(url);
         if (oldSiteId != null) {
             deletePageBySiteId(oldSiteId);
+            deleteLemmasBySiteId(oldSiteId);
+//            deleteRatingBySiteId(oldSiteId);
         }
         Long siteId = addSite(configSite.getUrl(), configSite.getName());
         WebSearchTaskContext webSearchTaskContext = new WebSearchTaskContext(url, siteId,
@@ -88,11 +90,13 @@ public class IndexingServiceImpl implements IndexingService {
 
     private synchronized void done() {
         threadCount++;
+
         if (threadCount == indexingSettings.getSites().size()) {
             indexing = false;
             threadCount = 0;
             stop.set(false);
             System.out.println("done");
+
         }
     }
 
@@ -109,6 +113,13 @@ public class IndexingServiceImpl implements IndexingService {
         pageRepository.deleteBySiteId(siteId);
     }
 
+    private void deleteLemmasBySiteId(Long siteId) {
+        lemmaRepository.deleteBySiteId(siteId);
+    }
+
+//    private void deleteRatingBySiteId(Long siteId) {
+//        ratingRepository.deleteBySiteId(siteId);
+//    }
     private Long addSite(String url, String name) {
         Site site = new Site();
         site.setType(StatusType.INDEXING);
@@ -149,7 +160,7 @@ public class IndexingServiceImpl implements IndexingService {
         Long siteId = siteRepository.getSiteIdByUrl(getTopLevelUrl(url));
         String content = getHtmlFromUrl(url);
         if (pageId != null){
-            List<Long> lemmasId = ratingRepository.getLemmasIgByPageId(pageId);
+            List<Long> lemmasId = ratingRepository.getLemmasIdByPageId(pageId);
             for (Long lemmaId : lemmasId) {
                 lemmaRepository.deleteById(lemmaId);
             }
