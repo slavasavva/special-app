@@ -31,7 +31,7 @@ public class WebSearchTaskContext {
 
     private IndexingSettings indexingSettings;
 
-    private IndexingService indexingService;
+
 
     private final AtomicBoolean stop;
 

@@ -32,17 +32,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public StatisticsResponse getStatistics() {
-        String[] statuses = {"INDEXED", "FAILED", "INDEXING"};
-        String[] errors = {
-                "Ошибка индексации: главная страница сайта не доступна",
-                "Ошибка индексации: сайт не доступен",
-                ""
-        };
-
         TotalStatistics total = new TotalStatistics();
         total.setSites(sites.getSites().size());
         total.setIndexing(true);
-
         List<DetailedStatisticsItem> detailed = new ArrayList<>();
         List<Site> sitesList = sites.getSites();
         for (int i = 0; i < sitesList.size(); i++) {
@@ -55,7 +47,7 @@ public class StatisticsServiceImpl implements StatisticsService {
             DetailedStatisticsItem item = new DetailedStatisticsItem();
             item.setUrl(site.getUrl());
             item.setName(site.getName());
-            item.setStatus(statuses[i % 3]);
+//            item.setStatus(statuses[i % 3]);
             item.setStatus(modelSite.getType().toString());
 //            int pages = random.nextInt(1_000);
 //           int lemmas = pages * random.nextInt(1_000);

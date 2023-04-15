@@ -70,7 +70,7 @@ public class SearchServiceImpl implements SearchService {
         if (filteredLemmas.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
-        foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), request.getLimit(), request.getOffset());
+        foundPages = findRelevantPages(filteredLemmas, request.getLimit(), request.getOffset());
 
         if (foundPages.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
