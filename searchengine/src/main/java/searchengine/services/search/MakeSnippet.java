@@ -42,25 +42,16 @@ public class MakeSnippet {
         return constructSnippetWithHighlight(foundWordsIndexes, new ArrayList<>(words));
     }
 
-//    public static void main(String[] args) {
-//        String text = "карты памяти";
-//        List<String> searchQuery = List.of("карты");
-//        String getSnippet = getSnippet(text, searchQuery);
-//        System.out.println(getSnippet);
-//    }
-
     public static String constructSnippetWithHighlight(List<Integer> foundWordsIndexes, List<String> words) {
         List<String> snippetCollector = new ArrayList<>();
         int beginning, end, before, after, index, prevIndex;
         before = 12;
         after = 12;
-
         foundWordsIndexes.sort(Integer::compareTo);
 
         for (int i : foundWordsIndexes) {
             words.set(i, "<font color='#FF00FF'><b>" + words.get(i) + "</b></font>");
         }
-
         index = foundWordsIndexes.get(0);
         beginning = Math.max(0, index - before);
         end = Math.min(words.size() - 1, index + after);
@@ -92,7 +83,6 @@ public class MakeSnippet {
         }
         return new ArrayList<>();
     }
-
 
     boolean serviceWords(List<String> morphInfo) {
         for (String variant : morphInfo) {

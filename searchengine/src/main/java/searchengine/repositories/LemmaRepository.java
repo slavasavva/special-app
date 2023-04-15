@@ -57,6 +57,5 @@ public interface LemmaRepository extends JpaRepository<Lemma, Long> {
             List<Long> siteIds,
             List<String> lemmas,
             double threshold);
-
 }
 
