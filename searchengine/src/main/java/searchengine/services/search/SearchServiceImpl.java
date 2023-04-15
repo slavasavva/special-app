@@ -70,12 +70,12 @@ public class SearchServiceImpl implements SearchService {
         if (filteredLemmas.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
-        foundPages = findRelevantPages(filteredLemmas, request.getLimit(), request.getOffset());
+        foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), request.getLimit(), request.getOffset());
 
         if (foundPages.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
-
+        int count = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), 20, 0).size();
         double maxRelevance = foundPages.get(0).getRelevance();
 
         List<FoundPage> searchResults = processPages(foundPages, filteredLemmas, maxRelevance);
@@ -94,7 +94,7 @@ public class SearchServiceImpl implements SearchService {
         for (PageDTO page : foundPages) {
             Document content = Jsoup.parse(page.getContent());
             result.add(new FoundPage(page.getSiteUrl(), page.getSiteName(), page.getPath(), content.title(),
-                    stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance()/maxRelevance));
+                    stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance() / maxRelevance));
         }
         return result;
     }
@@ -106,7 +106,7 @@ public class SearchServiceImpl implements SearchService {
                 getSitesId(),
                 lemmas,
                 threshold);
-        for (FilteredLemmaDTO lemmaDTO : filteredLemmaDTOS){
+        for (FilteredLemmaDTO lemmaDTO : filteredLemmaDTOS) {
             filteredLemmas.add(lemmaDTO.getLemma());
         }
         return filteredLemmas;
