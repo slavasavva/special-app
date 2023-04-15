@@ -12,8 +12,11 @@ import searchengine.repositories.LemmaRepository;
 import searchengine.repositories.PageRepository;
 import searchengine.repositories.SiteRepository;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
@@ -56,9 +59,9 @@ public class StatisticsServiceImpl implements StatisticsService {
 //            item.setError(errors[i % 3]);
 
             item.setError(modelSite.getLastError()==null ? "" : modelSite.getLastError());
-            item.setStatusTime(System.currentTimeMillis() -
-                    (random.nextInt(10_000)));
-//            item.setStatusTime(Long.parseLong(formatter.format(modelSite.getStatusTime())));
+//            item.setStatusTime(System.currentTimeMillis() -
+//                    (random.nextInt(10_000)));
+            item.setStatusTime(getTimestamp(modelSite.getStatusTime()));
             total.setPages(total.getPages() + pages);
             total.setLemmas(total.getLemmas() + lemmas);
             detailed.add(item);
@@ -73,5 +76,19 @@ public class StatisticsServiceImpl implements StatisticsService {
         return response;
     }
 
-    private SimpleDateFormat formatter = new SimpleDateFormat("dd.M.yyyy HH:mm:ss");
+    private long getTimestamp(String date) {
+        String inputDateInString = date;
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyy hh:mm:ss");
+
+        Date parsedDate = null;
+        try {
+            parsedDate = dateFormat.parse(inputDateInString);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
+        return timestamp.getTime() + 43200000;
+    }
 }
