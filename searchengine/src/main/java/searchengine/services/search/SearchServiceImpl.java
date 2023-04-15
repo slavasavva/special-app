@@ -65,12 +65,12 @@ public class SearchServiceImpl implements SearchService {
         }
         sitesToSearch = getSitesToSearch(request.getSite());
 
-        filteredLemmas = filterPopularLemmasOut(sitesToSearch, List.of(searchWordsNormalForms), THRESHOLD);
+        filteredLemmas = filterPopularLemmasOut(List.of(searchWordsNormalForms), THRESHOLD);
 
         if (filteredLemmas.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
         }
-        foundPages = findRelevantPages(filteredLemmas, sitesToSearch, request.getLimit(), request.getOffset());
+        foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), request.getLimit(), request.getOffset());
 
         if (foundPages.size() == 0) {
             return new SearchResponse(false, "По запросу '" + request.getQuery() + "' ничего не найдено");
@@ -81,9 +81,9 @@ public class SearchServiceImpl implements SearchService {
         List<FoundPage> searchResults = processPages(foundPages, filteredLemmas, maxRelevance);
         return new SearchResponse(
                 true,
-                message
-//                        + String.format(" Время поиска : %.3f сек.", (System.nanoTime() - searchStartTime) / 1000000000.)
-                ,
+                message,
+//                + String.format(" Время поиска : %.3f сек.",
+//                (System.nanoTime() - searchStartTime) / 1000000000.),
                 searchResults.size(),
                 searchResults
         );
@@ -100,23 +100,27 @@ public class SearchServiceImpl implements SearchService {
     }
 
     @Transactional
-    public List<String> filterPopularLemmasOut(List<Site> sites, List<String> lemmas, double threshold) {
-        return lemmaRepository.filterPopularLemmas(
+    public List<String> filterPopularLemmasOut(List<String> lemmas, double threshold) {
+        List<String> filteredLemmas = new ArrayList<>();
+        List<FilteredLemmaDTO> filteredLemmaDTOS = lemmaRepository.filterPopularLemmas(
                 getSitesId(),
                 lemmas,
-                threshold).stream().map(FilteredLemmaDTO::getLemma).toList();
+                threshold);
+        for (FilteredLemmaDTO lemmaDTO : filteredLemmaDTOS){
+            filteredLemmas.add(lemmaDTO.getLemma());
+        }
+        return filteredLemmas;
     }
 
-    List<PageDTO> findRelevantPages(List<String> filteredLemmas, List<Site> sitesToSearch, int limit, int offset) {
-        List<String> filteredLemmasCopy = new ArrayList(filteredLemmas);
+    List<PageDTO> findRelevantPages(List<String> filteredLemmas, int limit, int offset) {
         List<PageDTO> foundPages;
         do {
-            foundPages = getSortedRelevantPageDTOs(filteredLemmasCopy, getSitesId(), limit, offset);
+            foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), limit, offset);
             if (foundPages.size() > 0) {
                 break;
             }
-            filteredLemmasCopy.remove(0);
-        } while (filteredLemmasCopy.size() > 0);
+            filteredLemmas.remove(0);
+        } while (filteredLemmas.size() > 0);
 
         return foundPages;
     }
@@ -157,50 +161,4 @@ public class SearchServiceImpl implements SearchService {
         }
         return siteIds;
     }
-
-
-//    boolean lemmasContainAnyWordNormalForm(List<String> wordNormalForms, List<String> lemmas) {
-//        List<String> lemmasWordIntersection = new ArrayList<String>(lemmas);
-//        lemmasWordIntersection.retainAll(wordNormalForms);
-//        return !lemmasWordIntersection.isEmpty();
-//    }
-
-
-    //        String finalQuery = request.getQuery();
-//        if (filteredLemmas.size() < searchWordsNormalForms.length) {
-//            finalQuery = correctQuery(filteredLemmas, finalQuery);
-//        }
-
-//    String correctQuery(List<String> lemmas, String originalQuery) {
-//        MorphologyService ms = commonContext.getMorphologyService();
-//
-//        String[] splitQuery = ms.splitStringToWords(originalQuery);
-//        List<String> queryList = new ArrayList<>(List.of(splitQuery));
-//        List<String> wordNormalForms;
-//
-//        for (String word : splitQuery) {
-//            wordNormalForms = ms.getNormalFormOfAWord(word.toLowerCase(Locale.ROOT));
-//            if (wordNormalForms.isEmpty()) {
-//                queryList.remove(word);
-//                continue;
-//            }
-//            if (!lemmasContainAnyWordNormalForm(wordNormalForms, lemmas)) {
-//                queryList.remove(word);
-//            }
-//        }
-//        return String.join(" ", queryList);
-//    }
-
-//    private TreeMap<Long, String> filterPopularLemmas(Set<String> text) {
-//        TreeMap<Long, String> lemmas = new TreeMap<>();
-//        ArrayList<Long> siteIds = new ArrayList<>();
-//        for (Site site : sitesToSearch) {
-//            siteIds.add(siteRepository.GetSiteIdByUrl(site.getUrl()));
-//        }
-//        for (String lemma : text) {
-//            lemmas.put(lemmaRepository.getFrequency(lemma, siteIds), lemma);
-//        }
-//        return lemmas;
-
-//    }
 }

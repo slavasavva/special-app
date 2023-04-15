@@ -61,7 +61,7 @@ public class IndexingServiceImpl implements IndexingService {
         }
         Long siteId = addSite(configSite.getUrl(), configSite.getName());
         WebSearchTaskContext webSearchTaskContext = new WebSearchTaskContext(url, siteId,
-                siteRepository, pageRepository, indexingPage, stop);
+                siteRepository, pageRepository, indexingPage, indexingSettings, stop);
         new ForkJoinPool().invoke(new WebSearchTask(url, webSearchTaskContext));
 //        setSiteStatusType(url, siteId);
         done(url, siteId);

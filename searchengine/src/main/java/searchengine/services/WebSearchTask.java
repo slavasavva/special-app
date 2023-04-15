@@ -4,6 +4,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import searchengine.config.IndexingSettings;
 import searchengine.model.Page;
 import searchengine.repositories.PageRepository;
 import searchengine.repositories.SiteRepository;
@@ -29,7 +30,12 @@ public class WebSearchTask extends RecursiveAction {
 
     private IndexingPage indexingPage;
 
+
+    private IndexingSettings indexingSettings;
+
+
     private IndexingService indexingService;
+
 
     private List<WebSearchTask> subTasks = new LinkedList<>();
 
@@ -48,6 +54,7 @@ public class WebSearchTask extends RecursiveAction {
         this.siteRepository = webSearchTaskContext.getSiteRepository();
         this.pageRepository = webSearchTaskContext.getPageRepository();
         this.indexingPage = webSearchTaskContext.getIndexingPage();
+        this.indexingSettings = webSearchTaskContext.getIndexingSettings();
         this.stop = webSearchTaskContext.getStop();
         this.webSearchTaskContext = webSearchTaskContext;
     }
@@ -74,8 +81,8 @@ public class WebSearchTask extends RecursiveAction {
         try {
             Thread.sleep(500);
             Document document = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows; U; WindowsNT 5.1; en-US; rv1.8.1.6) Gecko/20070725 Firefox/2.0.0.6")
-                    .referrer("http://www.google.com")
+                    .userAgent(indexingSettings.getUserBot())
+                    .referrer(indexingSettings.getReferrer())
                     .get();
             processPage(siteId, url, 200, document.html());
             Elements linkElements = document.select("a[href]");
@@ -147,7 +154,6 @@ public class WebSearchTask extends RecursiveAction {
         String[] splitSite = url.split("//|/");
         return url.replace((splitSite[0] + "//" + splitSite[1]), "");
     }
-
 
     public Page createPage(Long siteId, String path, int code, String content) {
         Page page = new Page();
