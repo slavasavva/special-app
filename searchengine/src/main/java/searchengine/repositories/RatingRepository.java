@@ -11,7 +11,6 @@ import java.util.List;
 
 @Repository
 public interface RatingRepository extends JpaRepository<Rating, Long> {
-
     @Query(value = "SELECT lemma_id from rating WHERE page_id = :pageId", nativeQuery = true)
     List<Long> getLemmasIdByPageId(Long pageId);
 
@@ -21,14 +20,14 @@ public interface RatingRepository extends JpaRepository<Rating, Long> {
     void deleteByPageId(Long pageId);
 
     @Modifying
-    @Query(value = "DELETE from rating r" +
-            "join page p on r.page_id = p.id " +
-            "join lemma l on l.id = r.lemma_id" +
-            "join site s on s.id = p.site_id  + WHERE p.site_id = :siteId" +
-            "and p.id = r.id", nativeQuery = true)
+    @Query(
+            value = "DELETE rating from rating " +
+                    "join page on rating.page_id = page.id " +
+                    "where page.site_id = :siteId",
+            nativeQuery = true
+    )
     @Transactional
     void deleteBySiteId(Long siteId);
-
 
     @Query(
             value = "select r.page_id " +

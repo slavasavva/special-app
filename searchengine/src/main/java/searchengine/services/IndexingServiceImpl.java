@@ -55,12 +55,12 @@ public class IndexingServiceImpl implements IndexingService {
     private void indexSite(searchengine.config.Site configSite) {
         String url = configSite.getUrl();
         Long oldSiteId = getSiteIdByUrl(url);
-        deleteSiteByUrl(url);
         if (oldSiteId != null) {
             deletePageBySiteId(oldSiteId);
             deleteLemmasBySiteId(oldSiteId);
             deleteRatingBySiteId(oldSiteId);
         }
+        deleteSiteByUrl(url);
         Long siteId = addSite(configSite.getUrl(), configSite.getName());
         WebSearchTaskContext webSearchTaskContext = new WebSearchTaskContext(url, siteId,
                 indexingSettings, siteRepository, pageRepository, indexingPage, stop);
