@@ -17,8 +17,8 @@ indexing-settings:
     - url: https://www.playback.ru
       name: PlayBack.Ru
 
-    - url: https://www.lenta.ru
-      name: Лента.ру
+    - url: https://www.vk.ru
+      name: Вконтакте.Ру
 
     - url: https://www.ok.ru
       name: ok.ру

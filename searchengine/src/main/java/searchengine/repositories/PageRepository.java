@@ -41,7 +41,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     List<Long> getAllIdsBySiteId(List<Long> siteIds);
 
     @Query(
-            value = "select  " +
+            value = "select distinct " +
                     "s.url as siteUrl, " +
                     "s.name as siteName, " +
                     "p.path as path, " +

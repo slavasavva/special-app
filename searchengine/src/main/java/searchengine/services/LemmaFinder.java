@@ -15,16 +15,6 @@ public class LemmaFinder {
     private static final String WORD_TYPE_REGEX = "\\W\\w&&[^а-яА-Я\\s]";
     private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ"};
 
-    public Map<String, Integer> StripHtml(String html) {
-        LemmaFinder lemmaFinder = new LemmaFinder();
-        Map<String, Integer> lemmas
-                = lemmaFinder.collectLemmas(htmlCliningTag(html));
-        return lemmas;
-    }
-
-    static String htmlCliningTag(String html){
-        return Jsoup.clean(html, Whitelist.none());
-    }
     public static LemmaFinder getInstance() throws IOException {
         LuceneMorphology morphology= new RussianLuceneMorphology();
         return new LemmaFinder(morphology);
@@ -32,10 +22,6 @@ public class LemmaFinder {
 
     private LemmaFinder(LuceneMorphology luceneMorphology) {
         this.luceneMorphology = luceneMorphology;
-    }
-
-    LemmaFinder(){
-        throw new RuntimeException("Disallow construct");
     }
 
     public Map<String, Integer> collectLemmas(String text) {

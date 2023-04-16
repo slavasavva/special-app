@@ -94,6 +94,7 @@ public class SearchServiceImpl implements SearchService {
             result.add(new FoundPage(page.getSiteUrl(), page.getSiteName(), page.getPath(), content.title(),
                     stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance() / maxRelevance));
         }
+
         return result;
     }
 

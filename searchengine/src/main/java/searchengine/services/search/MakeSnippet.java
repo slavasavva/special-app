@@ -2,12 +2,24 @@ package searchengine.services.search;
 import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.english.EnglishLuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
+import searchengine.services.LemmaFinder;
+
 import java.io.IOException;
 import java.util.*;
 
 public class MakeSnippet {
     LuceneMorphology russianLuceneMorph;
     LuceneMorphology englishLuceneMorph;
+
+    private LemmaFinder lemmaFinder;
+
+    {
+        try {
+            lemmaFinder = LemmaFinder.getInstance();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     {
         try {
@@ -30,8 +42,9 @@ public class MakeSnippet {
             }
             iterator = query.listIterator();
             while (iterator.hasNext()) {
-                List<String> wordNormalForm = new ArrayList<>(getNormalFormOfAWord(word.toLowerCase(Locale.ROOT)));
-                wordNormalForm.retainAll(getNormalFormOfAWord(iterator.next()));
+//                List<String> wordNormalForm = new ArrayList<>(getNormalFormOfAWord(word.toLowerCase(Locale.ROOT)));
+                List<String> wordNormalForm = new ArrayList<>(lemmaFinder.getLemmaSet(word.toLowerCase(Locale.ROOT)));
+                wordNormalForm.retainAll(lemmaFinder.getLemmaSet(iterator.next()));
                 if (wordNormalForm.isEmpty()) {
                     continue;
                 }
