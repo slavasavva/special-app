@@ -26,7 +26,7 @@ public class Page {
    private Long siteId;
 
 //    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "site_id")
+//    @JoinColumn(name = "site_id", nullable = false)
 //    private Site site;
 
     @Column(nullable = false)

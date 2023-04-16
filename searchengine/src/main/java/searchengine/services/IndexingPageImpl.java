@@ -36,7 +36,7 @@ public class IndexingPageImpl implements IndexingPage {
             for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {
                 int uniqueLemmas = lemmaRepository.checkLemmaPresence(entry.getKey(), page.getSiteId());
                 if (uniqueLemmas == 0) {
-                    Long lemmaId = addLemma(page.getSiteId(), entry.getKey(), 1);
+                    Long lemmaId = addLemma(page.getSiteId(), entry.getKey());
                     addRating(page.getId(), lemmaId, entry.getValue());
                 } else {
                     lemmaRepository.setFrequencyByLemmaAndSiteId(entry.getKey(), page.getSiteId());
@@ -49,11 +49,11 @@ public class IndexingPageImpl implements IndexingPage {
         return Jsoup.clean(html, Whitelist.none());
     }
 
-    private Long addLemma(Long siteId, String lemmaName, int frequency) {
+    private Long addLemma(Long siteId, String lemmaName) {
         Lemma lemma = new Lemma();
         lemma.setSiteId(siteId);
         lemma.setLemma(lemmaName);
-        lemma.setFrequency(frequency);
+        lemma.setFrequency(1);
         return lemmaRepository.save(lemma).getId();
     }
 

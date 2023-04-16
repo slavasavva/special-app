@@ -53,12 +53,11 @@ public class SearchServiceImpl implements SearchService {
         List<PageDTO> foundPages;
         List<String> filteredLemmas;
         String message = "";
-        long searchStartTime = System.nanoTime();
+//        long searchStartTime = System.nanoTime();
 
         if (request.getQuery() == null || request.getQuery().length() == 0) {
             return new SearchResponse(false, "Задан пустой поисковый запрос");
         }
-//        Set<String> setRequestLemmas = lemmaFinder.getLemmaSet(request.getQuery());
         searchWordsNormalForms = lemmaFinder.getLemmaSet(request.getQuery()).toArray(new String[0]);
         if (searchWordsNormalForms.length == 0) {
             return new SearchResponse(false, "Не удалось выделить леммы для поиска из запроса");
@@ -77,14 +76,13 @@ public class SearchServiceImpl implements SearchService {
         }
         int count = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), 20, 0).size();
         double maxRelevance = foundPages.get(0).getRelevance();
-
         List<FoundPage> searchResults = processPages(foundPages, filteredLemmas, maxRelevance);
         return new SearchResponse(
                 true,
                 message,
 //                + String.format(" Время поиска : %.3f сек.",
 //                (System.nanoTime() - searchStartTime) / 1000000000.),
-                searchResults.size(),
+                count,
                 searchResults
         );
     }
@@ -112,18 +110,18 @@ public class SearchServiceImpl implements SearchService {
         return filteredLemmas;
     }
 
-    List<PageDTO> findRelevantPages(List<String> filteredLemmas, int limit, int offset) {
-        List<PageDTO> foundPages;
-        do {
-            foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), limit, offset);
-            if (foundPages.size() > 0) {
-                break;
-            }
-            filteredLemmas.remove(0);
-        } while (filteredLemmas.size() > 0);
-
-        return foundPages;
-    }
+//    List<PageDTO> findRelevantPages(List<String> filteredLemmas, int limit, int offset) {
+//        List<PageDTO> foundPages;
+//        do {
+//            foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), limit, offset);
+//            if (foundPages.size() > 0) {
+//                break;
+//            }
+//            filteredLemmas.remove(0);
+//        } while (filteredLemmas.size() > 0);
+//
+//        return foundPages;
+//    }
 
     public List<PageDTO> getSortedRelevantPageDTOs(List<String> lemmas, List<Long> sites, int limit, int offset) {
         List<Long> relevantPages = new ArrayList<>();

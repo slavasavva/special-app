@@ -10,53 +10,10 @@ import java.io.IOException;
 import java.util.*;
 
 public class LemmaFinder {
-//    LemmaFinder lemmaFinder;
-//    {
-//        try {
-//            LemmaFinder lemmaFinder = getInstance();
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
 
     private final LuceneMorphology luceneMorphology;
     private static final String WORD_TYPE_REGEX = "\\W\\w&&[^а-яА-Я\\s]";
     private static final String[] particlesNames = new String[]{"МЕЖД", "ПРЕДЛ", "СОЮЗ"};
-    private String html;
-    private String siteUrl;
-
-    public void setHtml(String html) {
-        this.html = html;
-    }
-
-    public void setSiteUrl(String siteUrl) {
-        this.siteUrl = siteUrl;
-    }
-
-
-    public static void main(String[] args) throws IOException {
-        LemmaFinder lemmaFinder = getInstance();
-        String html = getHtmlFromUrl("https://www.playback.ru");
-//        System.out.println(html);
-        Map<String, Integer> savva = lemmaFinder.collectLemmas(htmlCliningTag(html));
-//        Map<String, Integer> savva = lemmaFinder.collectLemmas("Повторное появление леопарда в Осетии позволяет предположить, что леопард постоянно обитает в некоторых районах Северного Кавказа.");
-        for (Map.Entry<String, Integer> entry : savva.entrySet()){
-            System.out.println(entry.getKey() + " " + entry.getValue());
-        }
-
-    }
-
-
-
-    private static String getHtmlFromUrl(String url) {
-        try {
-            Document document = Jsoup.connect(url).get();
-            return document.html();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public Map<String, Integer> StripHtml(String html) {
         LemmaFinder lemmaFinder = new LemmaFinder();
@@ -81,14 +38,6 @@ public class LemmaFinder {
         throw new RuntimeException("Disallow construct");
     }
 
-    /**
-     * Метод разделяет текст на слова, находит все леммы и считает их количество.
-     *
-     * @param text текст из которого будут выбираться леммы
-     * @return ключ является леммой, а значение количеством найденных лемм
-     */
-
-
     public Map<String, Integer> collectLemmas(String text) {
         String[] words = arrayContainsRussianWords(text);
         HashMap<String, Integer> lemmas = new HashMap<>();
@@ -102,12 +51,10 @@ public class LemmaFinder {
             if (anyWordBaseBelongToParticle(wordBaseForms)) {
                 continue;
             }
-
             List<String> normalForms = luceneMorphology.getNormalForms(word);
             if (normalForms.isEmpty()) {
                 continue;
             }
-
             String normalWord = normalForms.get(0);
 
             if (lemmas.containsKey(normalWord)) {
@@ -116,15 +63,9 @@ public class LemmaFinder {
                 lemmas.put(normalWord, 1);
             }
         }
-
         return lemmas;
-
     }
 
-    /**
-     * @param text текст из которого собираем все леммы
-     * @return набор уникальных лемм найденных в тексте
-     */
     public Set<String> getLemmaSet(String text) {
         String[] textArray = arrayContainsRussianWords(text);
         Set<String> lemmaSet = new HashSet<>();

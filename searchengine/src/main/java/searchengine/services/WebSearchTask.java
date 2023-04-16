@@ -102,6 +102,7 @@ public class WebSearchTask extends RecursiveAction {
             }
         } catch (Exception e) {
             processPage(siteId, url, 500, e.getMessage());
+            System.out.println("------------------" + url);
             siteRepository.statusTime(url, formatter.format(date));
             System.err.println("Exception for '" + url + "': " + e.getMessage());
             e.printStackTrace();

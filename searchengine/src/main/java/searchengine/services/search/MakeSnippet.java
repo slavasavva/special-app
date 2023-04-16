@@ -19,16 +19,16 @@ public class MakeSnippet {
     }
 
     public String getSnippet(String text, List<String> searchQuery) {
-        List<String> queryLocalCopy = new ArrayList<>(searchQuery);
+        List<String> query = new ArrayList<>(searchQuery);
         List<String> words = List.of(text.split("\\s"));
         ListIterator<String> iterator;
         List<Integer> foundWordsIndexes = new ArrayList<>();
 
         for (String word : words) {
-            if (queryLocalCopy.isEmpty()) {
+            if (query.isEmpty()) {
                 break;
             }
-            iterator = queryLocalCopy.listIterator();
+            iterator = query.listIterator();
             while (iterator.hasNext()) {
                 List<String> wordNormalForm = new ArrayList<>(getNormalFormOfAWord(word.toLowerCase(Locale.ROOT)));
                 wordNormalForm.retainAll(getNormalFormOfAWord(iterator.next()));
