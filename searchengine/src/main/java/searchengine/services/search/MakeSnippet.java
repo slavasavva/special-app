@@ -8,8 +8,8 @@ import java.io.IOException;
 import java.util.*;
 
 public class MakeSnippet {
-    LuceneMorphology russianLuceneMorph;
-    LuceneMorphology englishLuceneMorph;
+//    LuceneMorphology russianLuceneMorph;
+//    LuceneMorphology englishLuceneMorph;
 
     private LemmaFinder lemmaFinder;
 
@@ -21,14 +21,14 @@ public class MakeSnippet {
         }
     }
 
-    {
-        try {
-            russianLuceneMorph = new RussianLuceneMorphology();
-            englishLuceneMorph = new EnglishLuceneMorphology();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    {
+//        try {
+//            russianLuceneMorph = new RussianLuceneMorphology();
+//            englishLuceneMorph = new EnglishLuceneMorphology();
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
     public String getSnippet(String text, List<String> searchQuery) {
         List<String> query = new ArrayList<>(searchQuery);
@@ -87,16 +87,16 @@ public class MakeSnippet {
         return String.join("...", snippetCollector);
     }
 
-    public List<String> getNormalFormOfAWord(String word) {
-        word = word.replaceAll("ё", "е");
-        if (russianLuceneMorph.checkString(word) && !serviceWords(russianLuceneMorph.getMorphInfo(word))) {
-            return russianLuceneMorph.getNormalForms(word);
-        } else if (word.chars().allMatch(Character::isDigit)) {
-            return Collections.singletonList(word);
-        }
-        return new ArrayList<>();
-    }
-
+//    public List<String> getNormalFormOfAWord(String word) {
+//        word = word.replaceAll("ё", "е");
+//        if (russianLuceneMorph.checkString(word) && !serviceWords(russianLuceneMorph.getMorphInfo(word))) {
+//            return russianLuceneMorph.getNormalForms(word);
+//        } else if (word.chars().allMatch(Character::isDigit)) {
+//            return Collections.singletonList(word);
+//        }
+//        return new ArrayList<>();
+//    }
+//
     boolean serviceWords(List<String> morphInfo) {
         for (String variant : morphInfo) {
             if (variant.contains(" СОЮЗ") || variant.contains(" МЕЖД") ||
