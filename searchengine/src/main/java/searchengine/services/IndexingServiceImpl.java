@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static searchengine.Utils.*;
 
 @Service
 @RequiredArgsConstructor
@@ -65,10 +66,10 @@ public class IndexingServiceImpl implements IndexingService {
                 indexingSettings, siteRepository, pageRepository, indexingPage, stop);
         new ForkJoinPool().invoke(new WebSearchTask(url, webSearchTaskContext));
         setSiteStatusType(url, siteId);
-        done(url, siteId);
+        done();
     }
 
-    private synchronized void done(String url, Long siteId) {
+    private synchronized void done() {
         threadCount++;
         if (threadCount == indexingSettings.getSites().size()) {
             indexing = false;
@@ -125,16 +126,6 @@ public class IndexingServiceImpl implements IndexingService {
         return siteRepository.save(site).getId();
     }
 
-    public Page addPage(Long siteId, String path, int code, String content) {
-        Page page = new Page();
-        page.setSiteId(siteId);
-        page.setPath(path);
-        page.setCode(code);
-        page.setContent(content);
-        pageRepository.save(page);
-        return page;
-    }
-
     @Override
     public IndexingStatusResponse stopIndexing() {
         if (!indexing) {
@@ -160,10 +151,9 @@ public class IndexingServiceImpl implements IndexingService {
                 lemmaRepository.deleteById(lemmaId);
             }
             pageRepository.deletePageById(pageId);
-//            lemmaRepository.deleteLemmaByPageId(pageId);
             ratingRepository.deleteByPageId(pageId);
         }
-        Page page = addPage(siteId, path, 200, content);
+        Page page = createPage(pageRepository, siteId, path, 200, content);
         indexingPage.indexingPage(page);
 
         return new IndexingStatusResponse(true, null);
@@ -186,26 +176,4 @@ public class IndexingServiceImpl implements IndexingService {
         }
         return false;
     }
-
-    public String getPathFromUrl(String url) {
-        String[] splitSite = url.split("//|/");
-        return url.replace((splitSite[0] + "//" + splitSite[1]), "");
-    }
-
-    public String getSiteUrlFromPathUrl(String url) {
-        String[] splitSite = url.split("//|/");
-        return splitSite[0] + "//" + splitSite[1];
-    }
-
-    public String getSiteName(String url) {
-        String[] splitSite = url.split("//|/");
-        return splitSite[1];
-    }
-
-//    @Override
-//    public IndexPageResponse pageIndexing() {
-//        IndexPageResponse indexPageResponse = new IndexPageResponse();
-//        indexPageResponse.setResult(true);
-//        return indexPageResponse;
-//    }
 }

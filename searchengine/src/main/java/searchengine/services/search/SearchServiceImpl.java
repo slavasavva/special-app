@@ -53,7 +53,6 @@ public class SearchServiceImpl implements SearchService {
         List<FilteredPage> foundPages;
         List<String> filteredLemmas;
         String message = "";
-//        long searchStartTime = System.nanoTime();
 
         if (request.getQuery() == null || request.getQuery().length() == 0) {
             return new SearchResponse(false, "Задан пустой поисковый запрос");

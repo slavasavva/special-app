@@ -14,7 +14,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class IndexingPageImpl implements IndexingPage {
-
     private final RatingRepository ratingRepository;
 
     private final LemmaRepository lemmaRepository;

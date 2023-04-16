@@ -78,6 +78,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             throw new RuntimeException(e);
         }
         Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
-        return timestamp.getTime() + 43200000;
+        return timestamp.getTime();
     }
 }
