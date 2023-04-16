@@ -31,8 +31,6 @@ public class WebSearchTaskContext {
 
     private IndexingSettings indexingSettings;
 
-
-
     private final AtomicBoolean stop;
 
     public WebSearchTaskContext(String startUrl, Long siteId,

@@ -67,6 +67,17 @@ public class IndexingServiceImpl implements IndexingService {
         done(url, siteId);
     }
 
+    private synchronized void done(String url, Long siteId) {
+        threadCount++;
+        if (threadCount == indexingSettings.getSites().size()) {
+            indexing = false;
+            threadCount = 0;
+            stop.set(false);
+            setSiteStatusType(url, siteId);
+            System.out.println("done");
+        }
+    }
+
     private void setSiteStatusType(String url, Long siteId) {
         if (stop.get()) {
             siteRepository.setType(url, StatusType.FAILED.toString());
@@ -81,17 +92,6 @@ public class IndexingServiceImpl implements IndexingService {
             siteRepository.setType(url, StatusType.FAILED.toString());
         } else if (!indexing) {
             siteRepository.setType(url, StatusType.INDEXED.toString());
-        }
-    }
-
-    private synchronized void done(String url, Long siteId) {
-        threadCount++;
-        if (threadCount == indexingSettings.getSites().size()) {
-            indexing = false;
-            threadCount = 0;
-            stop.set(false);
-            System.out.println("done");
-            setSiteStatusType(url, siteId);
         }
     }
 

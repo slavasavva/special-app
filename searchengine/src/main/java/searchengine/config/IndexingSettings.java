@@ -13,6 +13,6 @@ import java.util.List;
 public class IndexingSettings {
     private List<Site> sites;
     private double siteIndexingSuccessfulPercentage;
-    private String userBot;
+    private String userAgent;
     private String referrer;
 }
