@@ -84,7 +84,7 @@ public class SearchServiceImpl implements SearchService {
         );
     }
 
-    List<FoundPage> processPages(List<FilteredPage> foundPages, List<String> searchQuery, double maxRelevance) {
+    private List<FoundPage> processPages(List<FilteredPage> foundPages, List<String> searchQuery, double maxRelevance) {
         List<FoundPage> result = new ArrayList<>();
         for (FilteredPage page : foundPages) {
             Document content = Jsoup.parse(page.getContent());

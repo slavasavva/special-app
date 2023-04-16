@@ -7,7 +7,6 @@ import searchengine.repositories.SiteRepository;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class WebSearchTaskContext {
-
     private String startUrl;
 
     private Long siteId;

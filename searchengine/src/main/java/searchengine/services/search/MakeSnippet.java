@@ -1,11 +1,11 @@
 package searchengine.services.search;
+
 import searchengine.services.LemmaFinder;
 
 import java.io.IOException;
 import java.util.*;
 
 public class MakeSnippet {
-
     private LemmaFinder lemmaFinder;
 
     {
@@ -15,7 +15,6 @@ public class MakeSnippet {
             throw new RuntimeException(e);
         }
     }
-
 
     public String getSnippet(String text, List<String> searchQuery) {
         List<String> query = new ArrayList<>(searchQuery);
