@@ -1,7 +1,4 @@
 package searchengine.services.search;
-import org.apache.lucene.morphology.LuceneMorphology;
-import org.apache.lucene.morphology.english.EnglishLuceneMorphology;
-import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import searchengine.services.LemmaFinder;
 
 import java.io.IOException;
@@ -52,10 +49,10 @@ public class MakeSnippet {
                 iterator.remove();
             }
         }
-        return constructSnippetWithHighlight(foundWordsIndexes, new ArrayList<>(words));
+        return makeSnippetWithColorWords(foundWordsIndexes, new ArrayList<>(words));
     }
 
-    public static String constructSnippetWithHighlight(List<Integer> foundWordsIndexes, List<String> words) {
+    public static String makeSnippetWithColorWords(List<Integer> foundWordsIndexes, List<String> words) {
         List<String> snippetCollector = new ArrayList<>();
         int beginning, end, before, after, index, prevIndex;
         before = 12;
@@ -97,13 +94,13 @@ public class MakeSnippet {
 //        return new ArrayList<>();
 //    }
 //
-    boolean serviceWords(List<String> morphInfo) {
-        for (String variant : morphInfo) {
-            if (variant.contains(" СОЮЗ") || variant.contains(" МЕЖД") ||
-                    variant.contains(" ПРЕДЛ") || variant.contains(" ЧАСТ")) {
-                return true;
-            }
-        }
-        return false;
-    }
+//    boolean serviceWords(List<String> morphInfo) {
+//        for (String variant : morphInfo) {
+//            if (variant.contains(" СОЮЗ") || variant.contains(" МЕЖД") ||
+//                    variant.contains(" ПРЕДЛ") || variant.contains(" ЧАСТ")) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 }
