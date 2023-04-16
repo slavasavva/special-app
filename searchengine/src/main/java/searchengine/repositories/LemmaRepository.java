@@ -8,33 +8,20 @@ import org.springframework.transaction.annotation.Transactional;
 import searchengine.dto.FilteredLemma;
 import searchengine.model.Lemma;
 
-
 import java.util.List;
 
 @Repository
 public interface LemmaRepository extends JpaRepository<Lemma, Long> {
-
-    @Query(value = "SELECT frequency from lemma where lemma = :lemma and site_id in :siteId", nativeQuery = true)
-    long getFrequency(String lemma, List<Long> siteId);
-
-    @Query(value = "SELECT count(id) from lemma where lemma = :lemma and site_id = :siteId", nativeQuery = true)
-    int checkLemmaPresence(String lemma, Long siteId);
-
-    @Query(value = "SELECT frequency from lemma where lemma = :lemma and site_id = :siteId", nativeQuery = true)
-    int getFrequencyByLemmaAndSiteId(String lemma, Long siteId);
+    @Query(value = "SELECT * from lemma where lemma = :lemma and site_id = :siteId", nativeQuery = true)
+    Lemma findByLemmaAndSiteId(String lemma, Long siteId);
 
     @Query(value = "SELECT count(id) from lemma where site_id = :siteId", nativeQuery = true)
     int getCountLemmasBySiteId(Long siteId);
+
     @Modifying
     @Query(value = "UPDATE lemma SET frequency = (frequency + 1)  where lemma = :lemma and site_id = :siteId", nativeQuery = true)
     @Transactional
-    void setFrequencyByLemmaAndSiteId(String lemma, Long siteId);
-
-    @Modifying
-    @Query(value = "delete from lemma l join rating r on l.id = r.lemma_id" +
-            "join page p on r.pageId = p.id where p.id = :pageId and l.id = p.id", nativeQuery = true)
-    @Transactional
-    void deleteLemmaByPageId(Long pageId);
+    void increaseFrequencyByLemmaAndSiteId(String lemma, Long siteId);
 
     @Modifying
     @Query(value = "delete from lemma where site_id = :siteId", nativeQuery = true)
@@ -58,4 +45,3 @@ public interface LemmaRepository extends JpaRepository<Lemma, Long> {
             List<String> lemmas,
             double threshold);
 }
-

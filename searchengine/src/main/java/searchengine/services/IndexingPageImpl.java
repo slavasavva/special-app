@@ -31,19 +31,23 @@ public class IndexingPageImpl implements IndexingPage {
 
     @Override
     public void indexingPage(Page page) {
-        if (page.getCode() == 200) {
-            Map<String, Integer> lemmas = lemmaFinder.collectLemmas(htmlCleaningTag(page.getContent()));
-            for (Map.Entry<String, Integer> entry : lemmas.entrySet()) {
-                int uniqueLemmas = lemmaRepository.checkLemmaPresence(entry.getKey(), page.getSiteId());
-                if (uniqueLemmas == 0) {
-                    Long lemmaId = addLemma(page.getSiteId(), entry.getKey());
-                    addRating(page.getId(), lemmaId, entry.getValue());
-                } else {
-                    lemmaRepository.setFrequencyByLemmaAndSiteId(entry.getKey(), page.getSiteId());
-                }
-            }
+        if (page.getCode() != 200) {
+            return;
         }
-   }
+        Map<String, Integer> collectedLemmas = lemmaFinder.collectLemmas(htmlCleaningTag(page.getContent()));
+
+        collectedLemmas.forEach((collectedLemma, rank) -> {
+            Lemma lemma = lemmaRepository.findByLemmaAndSiteId(collectedLemma, page.getSiteId());
+            Long lemmaId;
+            if (lemma == null) {
+                lemmaId = addLemma(page.getSiteId(), collectedLemma);
+            } else {
+                lemmaId = lemma.getId();
+            }
+            addRating(page.getId(), lemmaId, rank);
+            lemmaRepository.increaseFrequencyByLemmaAndSiteId(collectedLemma, page.getSiteId());
+        });
+    }
 
     static String htmlCleaningTag(String html) {
         return Jsoup.clean(html, Whitelist.none());

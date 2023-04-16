@@ -27,11 +27,6 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     void deleteByUrl(String url);
 
     @Modifying
-    @Query(value = "update site set (type, last_error) values (:type, :lastError) where url = :url", nativeQuery = true)
-    @Transactional
-    void setTypeAndLastError(String url, String type, String lastError);
-
-    @Modifying
     @Query(value = "update site set type = :type where url = :url", nativeQuery = true)
     @Transactional
     void setType(String url, String type);
@@ -40,11 +35,6 @@ public interface SiteRepository extends JpaRepository<Site, Long> {
     @Query(value = "update site set last_error = :error where url = :url", nativeQuery = true)
     @Transactional
     void setLastError(String url, String error);
-
-    @Modifying
-    @Query(value = "update site set type = :newType where type = :oldType and url = :url", nativeQuery = true)
-    @Transactional
-    void stopIndexing(String url, String newType, String oldType);
 
     @Modifying
     @Query(value = "update site set status_time = :statusTime where url = :url", nativeQuery = true)

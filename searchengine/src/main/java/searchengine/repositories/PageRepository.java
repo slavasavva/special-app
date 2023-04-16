@@ -15,9 +15,6 @@ public interface PageRepository extends JpaRepository<Page, Long> {
     @Query(value = "SELECT * from page WHERE site_id = :siteId and path = :path", nativeQuery = true)
     List<Page> findBySiteIdAndPath(Long siteId, String path);
 
-    @Query(value = "SELECT * from page WHERE page_id = :pageId", nativeQuery = true)
-    Page findPageById(Long pageId);
-
     @Modifying
     @Query(value = "DELETE from page WHERE site_id = :siteId", nativeQuery = true)
     @Transactional

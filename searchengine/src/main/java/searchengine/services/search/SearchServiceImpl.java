@@ -80,8 +80,6 @@ public class SearchServiceImpl implements SearchService {
         return new SearchResponse(
                 true,
                 message,
-//                + String.format(" Время поиска : %.3f сек.",
-//                (System.nanoTime() - searchStartTime) / 1000000000.),
                 count,
                 searchResults
         );
@@ -110,19 +108,6 @@ public class SearchServiceImpl implements SearchService {
         }
         return filteredLemmas;
     }
-
-//    List<PageDTO> findRelevantPages(List<String> filteredLemmas, int limit, int offset) {
-//        List<PageDTO> foundPages;
-//        do {
-//            foundPages = getSortedRelevantPageDTOs(filteredLemmas, getSitesId(), limit, offset);
-//            if (foundPages.size() > 0) {
-//                break;
-//            }
-//            filteredLemmas.remove(0);
-//        } while (filteredLemmas.size() > 0);
-//
-//        return foundPages;
-//    }
 
     public List<FilteredPage> getSortedRelevantPageDTOs(List<String> lemmas, List<Long> sites, int limit, int offset) {
         List<Long> relevantPages = new ArrayList<>();
