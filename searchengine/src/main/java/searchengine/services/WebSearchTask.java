@@ -24,13 +24,13 @@ public class WebSearchTask extends RecursiveAction {
 
     private Long siteId;
 
+    private IndexingSettings indexingSettings;
+
     private SiteRepository siteRepository;
 
     private final PageRepository pageRepository;
 
     private IndexingPage indexingPage;
-
-    private IndexingSettings indexingSettings;
 
     private List<WebSearchTask> subTasks = new LinkedList<>();
 
@@ -46,10 +46,10 @@ public class WebSearchTask extends RecursiveAction {
         this.url = url;
         this.startUrl = webSearchTaskContext.getStartUrl();
         this.siteId = webSearchTaskContext.getSiteId();
+        this.indexingSettings = webSearchTaskContext.getIndexingSettings();
         this.siteRepository = webSearchTaskContext.getSiteRepository();
         this.pageRepository = webSearchTaskContext.getPageRepository();
         this.indexingPage = webSearchTaskContext.getIndexingPage();
-        this.indexingSettings = webSearchTaskContext.getIndexingSettings();
         this.stop = webSearchTaskContext.getStop();
         this.webSearchTaskContext = webSearchTaskContext;
     }

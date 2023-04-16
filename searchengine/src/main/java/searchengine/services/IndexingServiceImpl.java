@@ -16,14 +16,13 @@ import searchengine.repositories.SiteRepository;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.atomic.AtomicBoolean;
+
 
 @Service
 @RequiredArgsConstructor
 public class IndexingServiceImpl implements IndexingService {
-    private final IndexingPageImpl indexingPage;
-
     private final IndexingSettings indexingSettings;
 
     private final SiteRepository siteRepository;
@@ -33,6 +32,8 @@ public class IndexingServiceImpl implements IndexingService {
     private final RatingRepository ratingRepository;
 
     private final LemmaRepository lemmaRepository;
+
+    private final IndexingPage indexingPage;
 
     private boolean indexing;
 
@@ -61,9 +62,9 @@ public class IndexingServiceImpl implements IndexingService {
         }
         Long siteId = addSite(configSite.getUrl(), configSite.getName());
         WebSearchTaskContext webSearchTaskContext = new WebSearchTaskContext(url, siteId,
-                siteRepository, pageRepository, indexingPage, indexingSettings, stop);
+                indexingSettings, siteRepository, pageRepository, indexingPage, stop);
         new ForkJoinPool().invoke(new WebSearchTask(url, webSearchTaskContext));
-//        setSiteStatusType(url, siteId);
+        setSiteStatusType(url, siteId);
         done(url, siteId);
     }
 
@@ -73,25 +74,25 @@ public class IndexingServiceImpl implements IndexingService {
             indexing = false;
             threadCount = 0;
             stop.set(false);
-            setSiteStatusType(url, siteId);
             System.out.println("done");
         }
     }
 
     private void setSiteStatusType(String url, Long siteId) {
         if (stop.get()) {
-            siteRepository.setType(url, StatusType.FAILED.toString());
+            siteRepository.setType(url, StatusType.FAILED.name());
             siteRepository.setLastError(url, "Индексация прервана пользователем");
-        } else if (pageRepository.countIndexedPage(siteId) == 0 && !indexing) {
-            siteRepository.setType(url, StatusType.FAILED.toString());
+        } else if (pageRepository.countIndexedPage(siteId) == 0) {
+            siteRepository.setType(url, StatusType.FAILED.name());
             siteRepository.setLastError(url, "Сайт недоступен для индексации");
-        } else if (pageRepository.countIndexedPage(siteId) != 0 && !indexing &&
-                pageRepository.countSuccessfulIndexedPage(siteId) / pageRepository.countIndexedPage(siteId) <
-                        indexingSettings.getSiteIndexingSuccessfulPercentage()) {
-            siteRepository.setLastError(url, "Проиндексировано менее 70% страниц сайта");
-            siteRepository.setType(url, StatusType.FAILED.toString());
-        } else if (!indexing) {
-            siteRepository.setType(url, StatusType.INDEXED.toString());
+        } else if (pageRepository.countIndexedPage(siteId) != 0
+                && (double) pageRepository.countSuccessfulIndexedPage(siteId) / pageRepository.countIndexedPage(siteId) <
+                indexingSettings.getSiteIndexingSuccessfulPercentage()) {
+            siteRepository.setType(url, StatusType.FAILED.name());
+            siteRepository.setLastError(url, "Проиндексировано менее " +
+                    indexingSettings.getSiteIndexingSuccessfulPercentage() * 100 + "% страниц сайта");
+        } else {
+            siteRepository.setType(url, StatusType.INDEXED.name());
         }
     }
 
@@ -113,7 +114,7 @@ public class IndexingServiceImpl implements IndexingService {
     }
 
     private void deleteRatingBySiteId(Long siteId) {
-//        ratingRepository.deleteBySiteId(siteId);
+        ratingRepository.deleteBySiteId(siteId);
     }
 
     private Long addSite(String url, String name) {
