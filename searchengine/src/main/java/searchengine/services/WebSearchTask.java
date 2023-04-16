@@ -30,16 +30,11 @@ public class WebSearchTask extends RecursiveAction {
 
     private IndexingPage indexingPage;
 
-
     private IndexingSettings indexingSettings;
-
-
-    private IndexingService indexingService;
-
 
     private List<WebSearchTask> subTasks = new LinkedList<>();
 
-    private Date date = new Date(System.currentTimeMillis() + 43200000);
+    private Date date = new Date(System.currentTimeMillis());
 
     private SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyy hh:mm:ss");
 

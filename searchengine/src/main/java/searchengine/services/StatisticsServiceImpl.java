@@ -70,11 +70,10 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private long getTimestamp(String date) {
-        String inputDateInString = date;
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyy hh:mm:ss");
         Date parsedDate = null;
         try {
-            parsedDate = dateFormat.parse(inputDateInString);
+            parsedDate = dateFormat.parse(date);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
