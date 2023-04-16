@@ -1,6 +1,6 @@
 package searchengine.dto;
 
-public interface    FilteredLemmaDTO {
+public interface FilteredLemma {
     String getLemma();
     int getFr();
 }

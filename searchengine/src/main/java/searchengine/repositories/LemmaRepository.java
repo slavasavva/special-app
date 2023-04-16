@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import searchengine.dto.FilteredLemmaDTO;
+import searchengine.dto.FilteredLemma;
 import searchengine.model.Lemma;
 
 
@@ -53,7 +53,7 @@ public interface LemmaRepository extends JpaRepository<Lemma, Long> {
                     "having count(r.page_id) < (select cast(count(p.id) as double precision) * :threshold from page p) " +
                     "order by fr asc",
             nativeQuery = true)
-    List<FilteredLemmaDTO> filterPopularLemmas(
+    List<FilteredLemma> filterPopularLemmas(
             List<Long> siteIds,
             List<String> lemmas,
             double threshold);

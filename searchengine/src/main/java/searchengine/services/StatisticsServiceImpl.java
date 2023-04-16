@@ -50,17 +50,10 @@ public class StatisticsServiceImpl implements StatisticsService {
             DetailedStatisticsItem item = new DetailedStatisticsItem();
             item.setUrl(site.getUrl());
             item.setName(site.getName());
-//            item.setStatus(statuses[i % 3]);
             item.setStatus(modelSite.getType().toString());
-//            int pages = random.nextInt(1_000);
-//           int lemmas = pages * random.nextInt(1_000);
             item.setPages(pages);
             item.setLemmas(lemmas);
-//            item.setError(errors[i % 3]);
-
             item.setError(modelSite.getLastError()==null ? "" : modelSite.getLastError());
-//            item.setStatusTime(System.currentTimeMillis() -
-//                    (random.nextInt(10_000)));
             item.setStatusTime(getTimestamp(modelSite.getStatusTime()));
             total.setPages(total.getPages() + pages);
             total.setLemmas(total.getLemmas() + lemmas);
@@ -78,16 +71,13 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     private long getTimestamp(String date) {
         String inputDateInString = date;
-
         SimpleDateFormat dateFormat = new SimpleDateFormat("MM-dd-yyy hh:mm:ss");
-
         Date parsedDate = null;
         try {
             parsedDate = dateFormat.parse(inputDateInString);
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
-
         Timestamp timestamp = new java.sql.Timestamp(parsedDate.getTime());
         return timestamp.getTime() + 43200000;
     }

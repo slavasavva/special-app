@@ -50,7 +50,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public SearchResponse searchService(SearchRequest request) {
-        List<PageDTO> foundPages;
+        List<FilteredPage> foundPages;
         List<String> filteredLemmas;
         String message = "";
 //        long searchStartTime = System.nanoTime();
@@ -87,9 +87,9 @@ public class SearchServiceImpl implements SearchService {
         );
     }
 
-    List<FoundPage> processPages(List<PageDTO> foundPages, List<String> searchQuery, double maxRelevance) {
+    List<FoundPage> processPages(List<FilteredPage> foundPages, List<String> searchQuery, double maxRelevance) {
         List<FoundPage> result = new ArrayList<>();
-        for (PageDTO page : foundPages) {
+        for (FilteredPage page : foundPages) {
             Document content = Jsoup.parse(page.getContent());
             result.add(new FoundPage(page.getSiteUrl(), page.getSiteName(), page.getPath(), content.title(),
                     stringBuilder.getSnippet(content.text(), searchQuery), page.getRelevance() / maxRelevance));
@@ -101,11 +101,11 @@ public class SearchServiceImpl implements SearchService {
     @Transactional
     public List<String> filterPopularLemmasOut(List<String> lemmas, double threshold) {
         List<String> filteredLemmas = new ArrayList<>();
-        List<FilteredLemmaDTO> filteredLemmaDTOS = lemmaRepository.filterPopularLemmas(
+        List<FilteredLemma> filteredLemmaDTOS = lemmaRepository.filterPopularLemmas(
                 getSitesId(),
                 lemmas,
                 threshold);
-        for (FilteredLemmaDTO lemmaDTO : filteredLemmaDTOS) {
+        for (FilteredLemma lemmaDTO : filteredLemmaDTOS) {
             filteredLemmas.add(lemmaDTO.getLemma());
         }
         return filteredLemmas;
@@ -124,7 +124,7 @@ public class SearchServiceImpl implements SearchService {
 //        return foundPages;
 //    }
 
-    public List<PageDTO> getSortedRelevantPageDTOs(List<String> lemmas, List<Long> sites, int limit, int offset) {
+    public List<FilteredPage> getSortedRelevantPageDTOs(List<String> lemmas, List<Long> sites, int limit, int offset) {
         List<Long> relevantPages = new ArrayList<>();
         for (String lemma : lemmas) {
             if (relevantPages.isEmpty()) {

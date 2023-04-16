@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import searchengine.dto.PageDTO;
+import searchengine.dto.FilteredPage;
 import searchengine.model.Page;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public interface PageRepository extends JpaRepository<Page, Long> {
                     "offset :offset",
             nativeQuery = true
     )
-    List<PageDTO> getLimitedSortedPagesByLemmasAndPageIds(
+    List<FilteredPage> getLimitedSortedPagesByLemmasAndPageIds(
             List<String> lemmas,
             List<Long> pageIds,
             int limit,

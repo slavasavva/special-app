@@ -1,6 +1,6 @@
 package searchengine.dto;
 
-public interface PageDTO {
+public interface FilteredPage {
     String getSiteUrl();
     String getSiteName();
     String getPath();
