@@ -60,8 +60,7 @@ public class WebSearchTask extends RecursiveAction {
     protected void compute() {
         siteRepository.statusTime(url, formatter.format(date));
         int allPaths = pageRepository.findAll().size();
-        // TODO remove me!
-        if (allPaths > 5) {
+        if (allPaths > 77) {
             return;
         }
         if (wrongLink(siteId, url)) {
